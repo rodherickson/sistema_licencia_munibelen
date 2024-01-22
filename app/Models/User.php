@@ -3,14 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Tymon\JWTAuth\Contracts\JWTSubject;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+
+use Illuminate\Support\Facades\DB;
+
 
 use SebastianBergmann\CodeUnit\FunctionUnit;
 
@@ -63,48 +66,17 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
-    public static function listUser()
+    
+    public static function verifyCredentials($email, $password): User|bool
     {
-        try  {
-            $users = DB::table('users')
-            ->where('status', '=', 1 )
-            ->orderBy('id', 'desc')
-            ->select('id', 'name','last_name', 'dni', 'email', 'type_user')
-            ->get();
-            return  $users;
-        } catch(ModelNotFoundException){
-            throw new \Exception('No se pudo listar a los usuarios');
+        $user=User::Where('email', $email)->first();
+        if($user&& hash::check($password,$user->password)){
+            return $user;
         }
-    }
 
-    public static function changePass($idUser, $newPass)
-    {
-        DB::table('users')
-        ->where('id', '=', $idUser)
-        ->update(['password' => Hash::make($newPass)]);
+        return false;
     }
-
-    public static function saveUser($name, $lastName, $dni, $email, $typeUser, $password)
-    {
-        DB::table('users')->insert([
-            'name' => $name,
-            'last_name' => $lastName, 
-            'dni' => $dni,
-            'email' => $email,
-            'type_user' => $typeUser,
-            'status' => true,
-            'password' => Hash::make($password),
-        ]);
-    }
-
-    public static function invalidate($idUser)
-    {
-        DB::table('users')
-        ->where('id', '=', $idUser )
-        ->update(
-            ['status' => false ]
-        );
-    }
+    
 
 
 }

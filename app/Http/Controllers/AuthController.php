@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use App\Http\Requests\RegisterUserRequest;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
+
+use App\Services\GenerateTokens;
+use Generator;
 class AuthController extends Controller
 
 {
@@ -27,46 +33,20 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login( Request $request)
+    public function login( LoginRequest $request)
     {
-        $credentials = $request->only('email', 'password');
-
-        $validator = Validator::make( $credentials,[
-            'email' => 'required|string|email|max:255',
-            'password' => 'required|string|min:6'
-        ]);
-
-        if($validator->fails()){
-            return response()->json(['status'=>'error', 'message'=>$validator->messages()], 400);
+        $user = User::verifyCredentials($request->email, $request->password);
+        if(!$user){
+            return response()->json([
+                'message' => 'Credenciales incorrectas!Vuelva a intentar'
+            ], 401);
         }
-
-        if (!$token = Auth::guard('api')->attempt($credentials)) {
-            return response()->json(['status'=>'error', 'message' => 'Unauthorized'], 401);
-        }
-    
-        $user = Auth::guard('api')->user();
-
-        $token = JWTAuth::claims(['type' => $user->type_user, 'email' => $request->email])->fromUser($user);
-        
-        try {
-            $dataUser = $this->dataUser($request->email);
-        }catch(\Exception $e){
-            return response()->json(['status' => 'error', 'message' => 'Estado ']);
-        }
-
-        return response()->json([
+         return response()->json([
             'status' => 'success',
-            'message' => 'User Authenticated',
-            'user' =>  $dataUser,  
-            'token' => $token
-        ]);
-
-
-        // if (! $token = auth()->attempt($credentials)) {
-        //     return response()->json(['error' => 'Unauthorized'], 401);
-        // }
-
-        // return $this->respondWithToken($token);
+            'message' => 'Usuario Autentificado',
+            'tokenOpertation' => GenerateTokens::oprationToken($user),
+            'tokenUpdate' => GenerateTokens::updateToken($user)
+        ], 200);
     }
 
     /**
@@ -80,22 +60,7 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout()
-    {
-        try{
-            Auth::guard('api')->logout();
-            return response()->json(['message' => 'Successfully logged out']);
-
-        } catch(\Exception $e){
-            return response()->json(['status'=> 'error', 'message'=> 'Error'], 500);
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Successfully logged out',
-        ]);
-    }
-
+  
     /**
      * Refresh a token.
      *
@@ -162,48 +127,26 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(Request $request){
-        $data = $request->only('name', 'last_name', 'dni', 'email', 'password', 'typeUser');       
-        $validator  = Validator::make($data, ['name' => 'required|string|max:255',   
-                  'last_name' => 'required|string|max:255',             
-                  'dni' => 'required|string|max:8',             
-                  'email' => 'required|string|email|max:255|unique:users',             
-                  'password' => 'required|string|min:6',             
-                  'typeUser' => 'required|string|max:255'         
-                ]);
+    public function register(RegisterUserRequest $request){
+        try  {
+            $user = User::create([
+                'name'=> $request->name,
+                'last_name'=> $request->lastName,
+                'dni'=> $request->dni,
+                'email'=> $request->email,
+                'password'=> $request->password,
+                'type_user'=> $request->type_user,
+            ]);
+            return response()->json([
+                'message' => 'Datos Guardados',
+            ], 200);
+    }
 
-        if($validator->fails()){
-            return response()->json($validator->errors()->toJson(),400);
-
-        }
-        User::saveUser($request->name, $request->last_name, $request->dni, $request->email, $request->typeUser, $request->password);
-
+    catch (\Throwable $e){
         return response()->json([
-            'status' => 'success',
-            'message' => 'User created successfully'
-        ], 200);
+            'message' => 'Problemas con el Servidor'
+        ], 500);
     }
-        // $user=User::create(array_merge(
-        //     $validator->validate(),
-        //     ['password'=>bcrypt($request->password)]
-        // ));
+}
 
-        // return response()->json(
-        //     [
-        //         'message'=>'Usuario registrado exitosamente',
-        //         'user'=>$user
-           //     ],201);
-
-           private  function dataUser($credentials) 
-           {
-               $data = User::where('email', $credentials)->first();
-               if(!$data){
-                   throw new Exception('Usuario no encontrado');
-               }
-               return [
-                   'uid' => $data->id, 
-                   'name' =>  $data->name,
-                   'typeUser' => $data->type_user,
-               ];
-    }
 }
