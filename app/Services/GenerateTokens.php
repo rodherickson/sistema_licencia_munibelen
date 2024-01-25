@@ -29,7 +29,7 @@ class GenerateTokens
 
         $customClaims=[
             'iss'=>'',
-            'aud'=>['user','carnet','licencias','multa'],
+            'aud'=>'',
             'exp'=> Carbon::now()->addMinutes(static::$timeLifeUpdateToken)->timestamp,
         ];
         $token=JWTAuth::customClaims($customClaims)->fromUser($user);

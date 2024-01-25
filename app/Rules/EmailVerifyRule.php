@@ -18,7 +18,7 @@ class EmailVerifyRule implements ValidationRule
         
         $user=DB::table('users')
         ->where('email','=',$value)
-        ->whereNotNull('email_verified_at')
+        ->whereNull('email_verified_at')
         ->exists();
 
         if(!$user){

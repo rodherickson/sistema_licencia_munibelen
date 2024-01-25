@@ -6,9 +6,9 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
-use App\Rules\EmailVerifyRule;
 
-class LoginRequest extends FormRequest
+
+class Rubro extends FormRequest
 {
     protected $stopOnFirstFailure=true;
     /**
@@ -16,7 +16,7 @@ class LoginRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     protected function failedValidation(Validator $validator)
@@ -36,23 +36,14 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required','email', 'max:255', new EmailVerifyRule],
-            'password' => 'required|max:255'
+           
         ];
     }
 
     public function messages(): array
     {
         return[
-            'email.required' => 'Por favor ingrese su correo electrónico',
-            'email.email' =>  'El correo electrónico no tiene un formato valido',
-            'email.max' => 'El correo electrónico non tiene un formato valido',
-            'password.required' => 'Por favor ingrese contraseña',
-            'password.max' => 'La contrasena excede el limite permitido de caracteres',
+            
         ];
     }
-
-
-
-
-}
+        }

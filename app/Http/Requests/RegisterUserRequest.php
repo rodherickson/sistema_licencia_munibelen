@@ -16,7 +16,7 @@ class RegisterUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     protected function failedValidation(Validator $validator)
@@ -36,7 +36,7 @@ class RegisterUserRequest extends FormRequest
     {
         return [
             'name' => 'required|string|min:2|max:255',
-            'lastName' => 'required|string|min:2|max:255',
+            'last_name' => 'required|string|min:2|max:255',
             'dni' => 'required|string|max:8',
             'email' => 'required|email|unique:users,email', 
             'password' =>  ['required', new passwordVerify],
@@ -52,11 +52,11 @@ class RegisterUserRequest extends FormRequest
             'name.string' => 'Formato de nombre Incorrecto :(',
             'name.min' => 'El nombre es demasiado corto :(',
             'name.max' => 'El nombre es demasiado Largo :(',
-            'lastName.required' => 'Debe ingresar su apellido :(',
-            'lastName.string' => 'Su apellido debe tener un formato correcto',
+            'last_name.required' => 'Debe ingresar su apellido :(',
+            'last_name.string' => 'Su apellido debe tener un formato correcto',
             'email.required' => 'Por favor ingrese su correo electrónico',
             'email.email' =>  'El correo electrónico no tiene un formato valido',
-            'email.max' => 'El correo electrónico non tiene un formato valido',
+            'email.max' => 'El correo electrónico no tiene un formato valido',
             'password.required' => 'Por favor ingrese contraseña',
             'type_user.required' => 'Por favor ingrese Tipo de usuario',
         ];

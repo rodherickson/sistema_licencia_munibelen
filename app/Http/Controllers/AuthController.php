@@ -15,6 +15,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 use App\Services\GenerateTokens;
 use Generator;
+
 class AuthController extends Controller
 
 {
@@ -25,7 +26,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
     /**
@@ -33,15 +34,15 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login( LoginRequest $request)
+    public function login(LoginRequest $request)
     {
         $user = User::verifyCredentials($request->email, $request->password);
-        if(!$user){
+        if (!$user) {
             return response()->json([
                 'message' => 'Credenciales incorrectas!Vuelva a intentar'
             ], 401);
         }
-         return response()->json([
+        return response()->json([
             'status' => 'success',
             'message' => 'Usuario Autentificado',
             'tokenOpertation' => GenerateTokens::oprationToken($user),
@@ -60,7 +61,7 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-  
+
     /**
      * Refresh a token.
      *
@@ -69,46 +70,45 @@ class AuthController extends Controller
     public function refresh(Request $request)
     {
         $authHeader = $request->header('Authorization');
-    
+
         if (!$authHeader) {
             return response()->json(['status' => 'error', 'message' => 'No token provided'], 401);
         }
-    
+
         try {
             $oldToken = JWTAuth::parseToken();
-          
+
             /** Verify if the user is still active */
             $email = $oldToken->getPayload()->get('email');
             $user = User::where('email', $email)->first();
             if (!$user || !$user->status) {
-              return response()->json([
-                'status' => 'error',
-                'message' => "Ti-ling, you are inactive",
-              ], 401);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Ti-ling, you are inactive",
+                ], 401);
             }
-          
+
             // Generate a new token without refreshing (blacklist the old one)
             $newToken = JWTAuth::fromUser($user, [], true);
-          
-            $dataUser = [
-              'uid' => $user->id,
-              'name' => $user->name,
-              'typeUser' => $user->type_user,
-            ];
-          
-            return response()->json([
-              'status' => 'success',
-              'message' => 'User Authenticated',
-              'user' => $dataUser,
-              'token' => $newToken,
-            ]);
-          } catch (\Exception $e) {
-            return response()->json([
-              'status' => 'error',
-              'message' => $e->getMessage(),
-            ], 401);
-          }
 
+            $dataUser = [
+                'uid' => $user->id,
+                'name' => $user->name,
+                'typeUser' => $user->type_user,
+            ];
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User Authenticated',
+                'user' => $dataUser,
+                'token' => $newToken,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 401);
+        }
     }
 
     /**
@@ -127,26 +127,24 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(RegisterUserRequest $request){
-        try  {
+    public function register(RegisterUserRequest $request)
+    {
+        try {
             $user = User::create([
-                'name'=> $request->name,
-                'last_name'=> $request->lastName,
-                'dni'=> $request->dni,
-                'email'=> $request->email,
-                'password'=> $request->password,
-                'type_user'=> $request->type_user,
+                'name' => $request->name,
+                'last_name' => $request->last_name,
+                'dni' => $request->dni,
+                'email' => $request->email,
+                'password' => $request->password,
+                'type_user' => $request->type_user,
             ]);
             return response()->json([
                 'message' => 'Datos Guardados',
             ], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Problemas con el Servidor'
+            ], 500);
+        }
     }
-
-    catch (\Throwable $e){
-        return response()->json([
-            'message' => 'Problemas con el Servidor'
-        ], 500);
-    }
-}
-
 }
