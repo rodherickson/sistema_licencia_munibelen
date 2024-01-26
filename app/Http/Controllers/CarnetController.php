@@ -27,31 +27,41 @@ class CarnetController extends Controller
                     'correo'=> $request->correo,
                     'direccion'=> $request->direccion,
                 ]);
-                $rubro = Rubro::firstOrNew(
-                    ['nombre_rubro' => $request->nombre_rubro],
-                    ['descripcion' => $request->descripcion, 'estado' => $request->estado]
-                );
-            
-                // Guardar el rubro si es nuevo
-                if (!$rubro->exists) {
-                    $rubro->save();
-                }
-                $fecha_emision = Carbon::createFromFormat('Y/m/d', $request->fecha_emision);
+                
+                $fecha_emision = Carbon::createFromFormat('Y/m/d', date('Y/m/d'));
                 $fecha_caducidad = $fecha_emision->addMonths(6)->format('Y/m/d');
     
 
                 $Carnet = CarnetModel::create([
                     'idpropietario'=> $propietario->id,
-                    'idrubro'=> $rubro->id,
+                    'idrubro'=> $request->idrubro,
                     'ubicacion'=> $request->ubicacion,
                     'cuadra'=> $request->cuadra,
                     'largo'=> $request->largo,
                     'ancho'=> $request->ancho,
                     'n_mesa'=> $request->n_mesa,
                     'categoria'=> $request->categoria,
-                    'fecha_emision'=> $request->fecha_emision,
+                    'fecha_emision'=>  $fecha_emision,
                     'fecha_caducidad'=> $fecha_caducidad,
                 ]);
+
+                if ($request->hasFile('files')) {
+                    $archivo=$request->file('files');
+                    foreach ($request->file('files') as $file) {
+                        $filename = $file->getClientOriginalName();
+                        $extension = $file->getClientOriginalExtension();
+                        $uniqueName = date('YmdHis') . rand(10,99);
+            
+                        $path = $file->storeAs(
+    
+                            'carnet/' . date('Y/m'),
+                            $uniqueName . '.' . $extension,
+                            'public'
+                        );
+                        $id = $Carnet->id;
+                        Carnet_files::saveFiles($Carnet->id,$filename, $uniqueName, $extension, $path );
+                    }
+                }
     
                 DB::commit();
     
@@ -62,6 +72,7 @@ class CarnetController extends Controller
             } catch (\Throwable $e){
                 DB::rollBack();
                 return response()->json([
+                    'status' =>'error',
                     'message' =>$e->getMessage()
                 ], 500);
             }

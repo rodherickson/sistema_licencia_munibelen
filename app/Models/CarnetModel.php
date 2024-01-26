@@ -6,20 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CarnetModel extends Model
-{   public $timestamps = false;
-    protected $table = 'carnet';
-    protected $fillable = ['idpropietario', 
-    'idrubro', 
-    'ubicacion', 
-    'cuadra', 
-    'largo', 
-    'ancho',
-    'n_mesa',
-    'categoria',
-    'fecha_emision',
-    'fecha_caducidad'];
-
+{   
     use HasFactory;
+    
+    public $timestamps = false;
+    protected $table = 'carnet';
+
+    protected $fillable = [
+        'idpropietario', 
+        'idrubro', 
+        'ubicacion', 
+        'cuadra', 
+        'largo', 
+        'ancho',
+        'n_mesa',
+        'categoria',
+        'fecha_emision',
+        'fecha_caducidad'
+    ];
 
     public function rubro()
     {

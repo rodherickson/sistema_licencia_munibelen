@@ -12,6 +12,7 @@ class Carnet_files extends Model
     use HasFactory;
     public $timestamps = false;
     protected $table = 'carnet_files';
+    
     protected $fillable = [
         'id_carnet_files',
         'original_name',
@@ -24,7 +25,7 @@ class Carnet_files extends Model
     public static function saveFiles($id, $filename, $unique_name, $extension, $path)
     {
         Carnet_files::create([
-            'id_convocatoria_files' => $id,
+            'id_carnet_files' => $id,
             'original_name' => $filename,
             'unique_name' => $unique_name,
             'type_file' => $extension,

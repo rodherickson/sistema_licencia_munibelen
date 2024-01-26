@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
 
 class CarnetRequest extends FormRequest
 {
@@ -33,16 +34,14 @@ class CarnetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'idpropietario' => '',
-            'idrubro' => '',
-            'ubicacion' => 'required',
-            'cuadra' => 'required',
-            'largo' => 'required',
-            'ancho' => 'required',
-            'n_mesa' => 'required',
-            'categoria' => 'required',
-            'fecha_emision' => 'required',
-            'fecha_caducidad' => '',
+            'idrubro' => 'required|numeric',
+            'ubicacion' => 'required|string|max:255',
+            'cuadra' => 'required|numeric',
+            'largo' => 'required|numeric',
+            'ancho' => 'required|numeric',
+            'n_mesa' => 'required|numeric',
+            'categoria' => 'required|string',
+            'files' =>  ['required', 'mimes:doc,docx,pdf,jpg,img,jfif,webp,jpeg']
         ];
     }
 
@@ -57,6 +56,8 @@ class CarnetRequest extends FormRequest
             'ancho.required' => 'Debe ingresar una longitud de ancho :(',
             'n_mesa.required' => 'Debe ingresar un numero de mesa :(',
             'categoria.required' => 'Debe ingresar una categoria :(',
+            'files.required' => 'Debe subir por lo menos un archivo',
+            'files.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
             'fecha_emision.required' => 'Debe ingresar una fecha de emision :(',
             'fecha_caducidad.required' => 'Debe ingresar una fecha de caducidad :(',
         ];
