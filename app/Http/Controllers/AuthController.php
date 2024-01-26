@@ -35,6 +35,11 @@ class AuthController extends Controller
             'status' => 'success',
             'message' => 'Usuario Autentificado',
             'token' => GenerateTokens::token($user),
+            'user' =>[
+                'id' =>$user->id,
+                'nombre'=>$user->name,
+                'email'=>$user->email
+            ]
         ], 200);
     }
 
