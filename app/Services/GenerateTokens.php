@@ -5,38 +5,58 @@ namespace App\Services;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Carbon\Carbon;
 
+use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Models\User;
 
 class GenerateTokens
 {
 
-    protected static $timeLifeUpdateToken=178560;
-    protected static $timeLifeOperationToken=30;
+    protected static $timeToken=99560;
 
-    public static function updateToken($user){
+    protected static $iss = 'sistemacarnet.munibelen.gob.pe';
+    protected static $aud = 'sistemacarnet.munibelen.gob.pe';
+
+    public static function token($user){
 
         $customClaims=[
-            'iss'=>'',
-            'aud'=>'',
-            'exp'=> Carbon::now()->addMinutes(static::$timeLifeUpdateToken)->timestamp,
+            'iss'=> static::$iss,
+            'aud'=> static::$aud,
+            'exp'=> Carbon::now()->addMinutes(static::$timeToken)->timestamp,
         ];
 
         $token=JWTAuth::customClaims($customClaims)->fromUser($user);
         return $token;
     }
 
+    public static function refreshTokens(): array
+    {
+        try {
+            
+            $currentToken = JWTAuth::getToken();
 
-    public static function oprationToken($user){
+            JWTAuth::checkOrFail();
 
-        $customClaims=[
-            'iss'=>'',
-            'aud'=>'',
-            'exp'=> Carbon::now()->addMinutes(static::$timeLifeUpdateToken)->timestamp,
-        ];
-        $token=JWTAuth::customClaims($customClaims)->fromUser($user);
-        return $token;
+            $payload = JWTAuth::getPayload($currentToken)->toArray();
+
+            $aud = $payload->get('aud');
+            $iss = $payload->get('iss');
+            $sub = $payload->get('sub');
+    
+            if (static::$iss != $iss || static::$aud != $aud[0]) {
+                throw new JWTException('Los claims esperados no coinciden con los proporcionados');
+            }
+    
+            $user = User::getUserIfActive($sub[0]);
+    
+            if (!$user) {
+                throw new JWTException('El usuario está temporalmente restringido');
+            }
+            return [$sub[0], self::token($user)];
+        } catch (JWTException $e) {
+            throw $e; 
+        } catch (\Exception $e) {
+            throw new JWTException('Error al refrescar el token: ' . $e->getMessage());
+        }
     }
-
-
-
 }
 ?>
