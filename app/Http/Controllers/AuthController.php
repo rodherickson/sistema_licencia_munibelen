@@ -43,7 +43,7 @@ class AuthController extends Controller
         ], 200);
     }
 
-    public function refresh(Request $request)
+    public function refresh()
     {
         try {
             list($idUser, $newToken) = GenerateTokens::refreshTokens();
