@@ -28,6 +28,7 @@ class AuthController extends Controller
         $user = User::verifyCredentials($request->email, $request->password);
         if (!$user) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Credenciales incorrectas!Vuelva a intentar'
             ], 401);
         }
