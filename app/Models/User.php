@@ -72,10 +72,6 @@ class User extends Authenticatable implements JWTSubject
         if($user&& hash::check($password,$user->password)){
             return $user;
         }
-
         return false;
     }
-    
-
-
 }
