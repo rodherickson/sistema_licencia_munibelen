@@ -41,7 +41,7 @@ class CarnetRequest extends FormRequest
             'ancho' => 'required|numeric',
             'n_mesa' => 'required|numeric',
             'categoria' => 'required|string',
-            'files' =>  ['required', 'mimes:doc,docx,pdf,jpg,img,jfif,webp,jpeg']
+            'files.*' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png,gif',
         ];
     }
 
@@ -57,7 +57,7 @@ class CarnetRequest extends FormRequest
             'n_mesa.required' => 'Debe ingresar un numero de mesa :(',
             'categoria.required' => 'Debe ingresar una categoria :(',
             'files.required' => 'Debe subir por lo menos un archivo',
-            'files.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
+            'files.*.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
             'fecha_emision.required' => 'Debe ingresar una fecha de emision :(',
             'fecha_caducidad.required' => 'Debe ingresar una fecha de caducidad :(',
         ];
