@@ -18,7 +18,7 @@ class User extends Seeder
             'name' => 'tilin',
             'last_name' => 'tester',
             'dni' => 'tilin',
-            'email' => 'tilinteser@gmail.com',
+            'email' => 'tilintester@gmail.com',
             'password' => Hash::make('Hola5.2'),
             'type_user' => 'admin',
         ]);
