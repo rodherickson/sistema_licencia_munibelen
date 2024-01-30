@@ -74,4 +74,17 @@ class User extends Authenticatable implements JWTSubject
         }
         return false;
     }
+
+    public static function getUserIfActive($id): ?User
+    {
+        $user = User::where('id', $id)
+            ->where('status', '=', 1)
+            ->first();
+
+        if (!$user) {
+            return null;
+        }
+
+        return $user;
+    }
 }
