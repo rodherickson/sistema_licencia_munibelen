@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Rubro;
 use App\Http\Controllers\Propietario;
 use App\Http\Controllers\CarnetController;
+use App\Http\Controllers\LicenciaController;
 
 /*
 |--------------------------------------------------------------------------
