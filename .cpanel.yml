@@ -2,6 +2,6 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/munibelengob/public_html/sistemacarnet.munibelen.gob.pe
-    - /bin/rsync -a --exclude 'index.php' /home/munibelengob/repositories/sistema_licencia_munibelen/public/ $DEPLOYPATH
+    - /bin/rsync -a --exclude 'index.php' --exclude '.htaccess' /home/munibelengob/repositories/sistema_licencia_munibelen/public/ $DEPLOYPATH
     - export DEPLOYPATH=/home/munibelengob/web_sistema_carnet/
     - /bin/rsync -a --exclude 'public/' * $DEPLOYPATH
