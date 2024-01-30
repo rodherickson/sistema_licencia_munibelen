@@ -23,7 +23,7 @@ class LoginRequest extends FormRequest
     {
      $jsonResponse=new JsonResponse([
         'status'=>'error',
-        'messsage'=>messageValidation($validator)
+        'message'=>messageValidation($validator)
      ],422);
      throw new HttpResponseException($jsonResponse);   
     }

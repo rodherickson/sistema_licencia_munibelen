@@ -10,6 +10,7 @@ use App\Models\Carnet_files;
 use App\Models\Propietario;
 use App\Models\Rubro;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class CarnetController extends Controller
 {
@@ -79,4 +80,29 @@ class CarnetController extends Controller
         }
     
     }
+
+    public function obtenercarnet($id)
+    {
+        $carnet = DB::table('carnet as c')
+                    ->select('p.apellido', 'p.nombre', 'p.dni', 'p.direccion',
+                             'c.ubicacion', 'c.cuadra', 'c.largo', 'c.ancho',
+                             'r.nombre_rubro as rubro',
+                             'c.n_mesa', 'c.categoria', 'c.fecha_emision', 'c.fecha_caducidad',
+                             'cf.original_name', 'cf.path_file')
+                    ->join('carnet_files as cf', 'c.id', '=', 'cf.id_carnet_files')
+                    ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
+                    ->join('rubro as r', 'r.id', '=', 'c.idrubro')
+                    ->where('c.id', $id)
+                    ->where(function ($query) {
+                        $query->where('cf.path_file', 'LIKE', '%.jpg')
+                              ->orWhere('cf.path_file', 'LIKE', '%.jpeg')
+                              ->orWhere('cf.path_file', 'LIKE', '%.png');
+                    })
+                    ->get();
+    
+        return response()->json($carnet);
+    }
+    
+    
+    
 }

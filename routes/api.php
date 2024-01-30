@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Rubro;
 use App\Http\Controllers\Propietario;
 use App\Http\Controllers\CarnetController;
+use App\Http\Controllers\LicenciaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,3 +28,5 @@ Route::get('/propietarios', [Propietario::class, 'obtenerTodos']);
 Route::get('/propietarios/{id}', [Propietario::class, 'obtenerPorId']);
 Route::put('/propietarios/{id}', [Propietario::class, 'actualizarDatos']);
 Route::post('/carnet', [CarnetController::class, 'register']);
+Route::post('/licencia', [LicenciaController::class, 'register']);
+Route::get('/carnet/{id}',[CarnetController::class, 'obtenercarnet']);

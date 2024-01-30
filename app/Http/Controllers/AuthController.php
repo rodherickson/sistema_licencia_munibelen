@@ -28,6 +28,7 @@ class AuthController extends Controller
     {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
+    
 
     /**
      * Get a JWT via given credentials.
@@ -35,6 +36,9 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function login(LoginRequest $request)
+
+
+    
     {
         $user = User::verifyCredentials($request->email, $request->password);
         if (!$user) {
@@ -42,11 +46,18 @@ class AuthController extends Controller
                 'message' => 'Credenciales incorrectas!Vuelva a intentar'
             ], 401);
         }
+
+        $userData = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            // Agrega más campos según sea necesario
+        ];
         return response()->json([
             'status' => 'success',
             'message' => 'Usuario Autentificado',
-            'tokenOpertation' => GenerateTokens::oprationToken($user),
-            'tokenUpdate' => GenerateTokens::updateToken($user)
+            'user' => $userData,
+            'token' => GenerateTokens::oprationToken($user),
         ], 200);
     }
 
