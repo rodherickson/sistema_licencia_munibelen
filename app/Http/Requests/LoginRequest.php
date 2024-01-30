@@ -6,7 +6,6 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
-use App\Rules\EmailVerifyRule;
 
 class LoginRequest extends FormRequest
 {
@@ -36,7 +35,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required','email', 'max:255', new EmailVerifyRule],
+            'email' => ['required','email', 'max:255'],
             'password' => 'required|max:255'
         ];
     }

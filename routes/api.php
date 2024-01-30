@@ -28,5 +28,4 @@ Route::get('/propietarios', [Propietario::class, 'obtenerTodos']);
 Route::get('/propietarios/{id}', [Propietario::class, 'obtenerPorId']);
 Route::put('/propietarios/{id}', [Propietario::class, 'actualizarDatos']);
 Route::post('/carnet', [CarnetController::class, 'register']);
-Route::post('/licencia', [LicenciaController::class, 'register']);
-Route::get('/carnet/{id}',[CarnetController::class, 'obtenercarnet']);
+Route::post('/refresh', [AuthController::class, 'refresh']);
