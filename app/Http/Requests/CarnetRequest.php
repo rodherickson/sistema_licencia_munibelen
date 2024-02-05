@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rule;
-
+use App\Rules\ImageValidation;
 class CarnetRequest extends FormRequest
 {
     /**
@@ -41,7 +41,12 @@ class CarnetRequest extends FormRequest
             'ancho' => 'required|numeric',
             'n_mesa' => 'required|numeric',
             'categoria' => 'required|string',
-            'files.*' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png,gif',
+            'files.*' => [
+                'required',
+                'mimes:doc,docx,pdf,jpg,jpeg,png,gif',
+                'min:1',
+               new ImageValidation
+            ],
         ];
     }
 
@@ -56,8 +61,10 @@ class CarnetRequest extends FormRequest
             'ancho.required' => 'Debe ingresar una longitud de ancho :(',
             'n_mesa.required' => 'Debe ingresar un numero de mesa :(',
             'categoria.required' => 'Debe ingresar una categoria :(',
-            'files.required' => 'Debe subir por lo menos un archivo',
+            'files.*.required' => 'Debe subir por lo menos un archivo',
             'files.*.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
+            'files.*.dimensions' => 'Dimensiones de la imagen inválidas',
+            'files.*.max' => 'archivo muy pesado',
             'fecha_emision.required' => 'Debe ingresar una fecha de emision :(',
             'fecha_caducidad.required' => 'Debe ingresar una fecha de caducidad :(',
         ];

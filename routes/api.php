@@ -7,7 +7,7 @@ use App\Http\Controllers\Rubro;
 use App\Http\Controllers\Propietario;
 use App\Http\Controllers\CarnetController;
 use App\Http\Controllers\LicenciaController;
-
+use App\Http\Controllers\MultaController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,9 +24,13 @@ use App\Http\Controllers\LicenciaController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/rubro', [Rubro::class, 'listRubro']);
+Route::get('/propietario/{dni}',[Propietario::class,'getDatosPorDni']);
 Route::get('/propietarios', [Propietario::class, 'obtenerTodos']);
-Route::get('/propietarios/{id}', [Propietario::class, 'obtenerPorId']);
 Route::put('/propietarios/{id}', [Propietario::class, 'actualizarDatos']);
 Route::post('/carnet', [CarnetController::class, 'register']);
+Route::get('/carnet', [CarnetController::class, 'listcarnet']);
+Route::post('/multa', [MultaController::class, 'registerMulta']);
 Route::post('/licencia', [LicenciaController::class, 'register']);
-Route::get('/carnet/{id}',[CarnetController::class, 'obtenercarnet']);
+Route::get('/licencia/{dni}', [LicenciaController::class, 'obtnerlicencia']);
+Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
+

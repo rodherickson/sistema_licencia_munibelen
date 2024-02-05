@@ -8,7 +8,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rule;
 
-class LicenciaRequest extends FormRequest
+class Detalle_MultaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -17,6 +17,7 @@ class LicenciaRequest extends FormRequest
     {
         return true;
     }
+
 
     protected function failedValidation(Validator $validator)
     {
@@ -35,29 +36,17 @@ class LicenciaRequest extends FormRequest
     public function rules(): array
     {
         return [
-           
-            'nombreempresa' => 'required|string|max:255',
-            'denominacion_local' => 'required|string|max:255',
-            'ruc' => 'required|numeric',
-            'direccion' => 'required|string|max:255',
-            'area' => 'required|numeric',
-            'aforo' => 'required|numeric',
-            'files.*' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png,gif',
+            'fecha' => 'required|date',
+            'status' => 'required|string',
         ];
     }
 
     public function messages(): array
     {
         return[
-            'nombreempresa.required' => 'Debe ingresar un nombre de la empresa :(',
-            'ruc.required' => 'Debe ingresar Su ruc :(',
-            'direccion.required' => 'Debe ingresar una direccion :(',
-            'area.required' => 'Debe ingresar una longitud de area :(',
-            'aforo.required' => 'Debe ingresar un numero de aforo :(',
-            'files.*.required' => 'Debe subir por lo menos un archivo',
-            'files.*.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
-            
+            'fecha.required' => 'Debe ingresar una fecha :(',
+            'status.required' => 'Debe ingresar un estado :(',
+         
         ];
     }
-
 }

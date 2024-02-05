@@ -8,7 +8,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rule;
 
-class LicenciaRequest extends FormRequest
+class MultaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,6 +27,7 @@ class LicenciaRequest extends FormRequest
      throw new HttpResponseException($jsonResponse);   
     } 
 
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -35,29 +36,23 @@ class LicenciaRequest extends FormRequest
     public function rules(): array
     {
         return [
-           
-            'nombreempresa' => 'required|string|max:255',
-            'denominacion_local' => 'required|string|max:255',
-            'ruc' => 'required|numeric',
-            'direccion' => 'required|string|max:255',
-            'area' => 'required|numeric',
-            'aforo' => 'required|numeric',
-            'files.*' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png,gif',
+            
+            'idtipo_multa' => 'required|numeric',
+            'idarea' => 'required|numeric',
+            'files.*' => 'required|mimes:doc,docx,pdf',
         ];
     }
+
 
     public function messages(): array
     {
         return[
-            'nombreempresa.required' => 'Debe ingresar un nombre de la empresa :(',
-            'ruc.required' => 'Debe ingresar Su ruc :(',
-            'direccion.required' => 'Debe ingresar una direccion :(',
-            'area.required' => 'Debe ingresar una longitud de area :(',
-            'aforo.required' => 'Debe ingresar un numero de aforo :(',
+            
+            'idtipo_multa.required' => 'Debe ingresar un tipo multa :(',
+            'idarea_multa.required' => 'Debe ingresar un area :(',
             'files.*.required' => 'Debe subir por lo menos un archivo',
             'files.*.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
-            
+            'expiredate.required' => 'Debe ingresar una fecha :(',
         ];
     }
-
 }

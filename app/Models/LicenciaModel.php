@@ -14,6 +14,7 @@ class LicenciaModel extends Model
     protected $fillable = [
         'idpropietario', 
         'nombreempresa', 
+        'denominacion_local',
         'ruc', 
         'direccion', 
         'area', 

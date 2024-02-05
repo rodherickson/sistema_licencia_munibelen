@@ -11,6 +11,7 @@ use App\Models\Propietario;
 use App\Models\Rubro;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class CarnetController extends Controller
 {
@@ -46,7 +47,9 @@ class CarnetController extends Controller
                     'fecha_caducidad'=> $fecha_caducidad,
                 ]);
 
-                if ($request->hasFile('files')) {
+                
+
+                if ($request->hasFile('files') && count($request->file('files')) > 0)  {
                     $archivo=$request->file('files');
                     foreach ($request->file('files') as $file) {
                         $filename = $file->getClientOriginalName();
@@ -63,8 +66,15 @@ class CarnetController extends Controller
                         Carnet_files::saveFiles($Carnet->id,$filename, $uniqueName, $extension, $path );
                     }
                 }
+                else {
+                    return response()->json([
+                        'message' => 'Se requiere al menos un archivo.',
+                    ], 422); // Código de error de validación
     
-                DB::commit();
+                
+            }
+
+            DB::commit();
     
                 return response()->json([
                     'message' => 'Datos guardados',
@@ -81,8 +91,13 @@ class CarnetController extends Controller
     
     }
 
-    public function obtenercarnet($id)
-    {
+    public function obtenercarnet(Request $request,$dni)
+    {   
+        if (!is_numeric($dni) || strlen($dni) !== 8) {
+            return response()->json(['error' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
+        }
+
+
         $carnet = DB::table('carnet as c')
                     ->select('p.apellido', 'p.nombre', 'p.dni', 'p.direccion',
                              'c.ubicacion', 'c.cuadra', 'c.largo', 'c.ancho',
@@ -92,7 +107,7 @@ class CarnetController extends Controller
                     ->join('carnet_files as cf', 'c.id', '=', 'cf.id_carnet_files')
                     ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
                     ->join('rubro as r', 'r.id', '=', 'c.idrubro')
-                    ->where('c.id', $id)
+                    ->where('p.dni',$dni)
                     ->where(function ($query) {
                         $query->where('cf.path_file', 'LIKE', '%.jpg')
                               ->orWhere('cf.path_file', 'LIKE', '%.jpeg')
@@ -101,6 +116,21 @@ class CarnetController extends Controller
                     ->get();
     
         return response()->json($carnet);
+    }
+
+    public function listcarnet()
+    {
+
+    $carnet = DB::table('carnet as c')
+    ->select('c.id', DB::raw("CONCAT(p.nombre, ' ', p.apellido) AS nombre_completo"), 'r.nombre_rubro as rubro', 'c.fecha_emision', 'c.fecha_caducidad')
+    ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
+    ->join('rubro as r', 'r.id', '=', 'c.idrubro')
+    ->orderBy('c.fecha_caducidad', 'ASC')
+    ->get();
+
+return response()->json($carnet);
+
+
     }
     
     

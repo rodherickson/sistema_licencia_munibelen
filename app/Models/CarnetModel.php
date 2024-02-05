@@ -25,8 +25,5 @@ class CarnetModel extends Model
         'fecha_caducidad'
     ];
 
-    public function rubro()
-    {
-        return $this->belongsTo(Rubro::class, 'id_rubro');
-    }
+  
 }
