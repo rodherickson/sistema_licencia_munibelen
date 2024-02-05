@@ -72,10 +72,19 @@ class User extends Authenticatable implements JWTSubject
         if($user&& hash::check($password,$user->password)){
             return $user;
         }
-
         return false;
     }
-    
 
+    public static function getUserIfActive($id): ?User
+    {
+        $user = User::where('id', $id)
+            ->where('status', '=', 1)
+            ->first();
 
+        if (!$user) {
+            return null;
+        }
+
+        return $user;
+    }
 }

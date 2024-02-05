@@ -17,24 +17,13 @@ use App\Services\GenerateTokens;
 use Generator;
 
 class AuthController extends Controller
-
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
     
 
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function login(LoginRequest $request)
 
 
@@ -43,6 +32,7 @@ class AuthController extends Controller
         $user = User::verifyCredentials($request->email, $request->password);
         if (!$user) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Credenciales incorrectas!Vuelva a intentar'
             ], 401);
         }
@@ -56,62 +46,25 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Usuario Autentificado',
-            'user' => $userData,
-            'token' => GenerateTokens::oprationToken($user),
+            'token' => GenerateTokens::token($user),
+            'user' =>[
+                'id' =>$user->id,
+                'nombre'=>$user->name,
+                'email'=>$user->email
+            ]
+
         ], 200);
     }
 
-    /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh(Request $request)
+    public function refresh()
     {
-        $authHeader = $request->header('Authorization');
-
-        if (!$authHeader) {
-            return response()->json(['status' => 'error', 'message' => 'No token provided'], 401);
-        }
-
         try {
-            $oldToken = JWTAuth::parseToken();
-
-            /** Verify if the user is still active */
-            $email = $oldToken->getPayload()->get('email');
-            $user = User::where('email', $email)->first();
-            if (!$user || !$user->status) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => "Ti-ling, you are inactive",
-                ], 401);
-            }
-
-            // Generate a new token without refreshing (blacklist the old one)
-            $newToken = JWTAuth::fromUser($user, [], true);
-
-            $dataUser = [
-                'uid' => $user->id,
-                'name' => $user->name,
-                'typeUser' => $user->type_user,
-            ];
+            list($idUser, $newToken) = GenerateTokens::refreshTokens();
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'User Authenticated',
-                'user' => $dataUser,
+                'user' => $idUser,
                 'token' => $newToken,
             ]);
         } catch (\Exception $e) {
@@ -120,22 +73,6 @@ class AuthController extends Controller
                 'message' => $e->getMessage(),
             ], 401);
         }
-    }
-
-    /**
-     * Get the token array structure.
-     *
-     * @param  string $token
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function respondWithToken($token)
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
     }
 
     public function register(RegisterUserRequest $request)
