@@ -6,12 +6,8 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
-<<<<<<< HEAD
 use Illuminate\Validation\Rule;
 use App\Rules\ImageValidation;
-=======
-
->>>>>>> 81c481cc1c815c46bce2c08622903c5433bbf141
 class CarnetRequest extends FormRequest
 {
     /**
