@@ -11,16 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('licencia', function (Blueprint $table) {
+        Schema::create('constancia', function (Blueprint $table) {
             $table->id();
             $table->foreignId('idpropietario')->constrained('propietario');
-            $table->string('nombreempresa',255);
-            $table->string('ruc',255);
-            $table->string('direccion',255);
-            $table->string('area',255);
-            $table->string('aforo',255);
-            $table->date('fecha_emision');
-            $table->date('fecha_caducidad');
+            
         });
     }
 
@@ -29,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('licencia');
+        Schema::dropIfExists('constancia');
     }
 };

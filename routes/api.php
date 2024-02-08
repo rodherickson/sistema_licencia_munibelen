@@ -7,7 +7,8 @@ use App\Http\Controllers\Rubro;
 use App\Http\Controllers\Propietario;
 use App\Http\Controllers\CarnetController;
 use App\Http\Controllers\LicenciaController;
-
+use App\Http\Controllers\MultaController;
+use App\Http\Controllers\PersonaController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -23,9 +24,17 @@ use App\Http\Controllers\LicenciaController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::get('/rubro', [Rubro::class, 'listRubro']);
+Route::get('/persona/{dni}',[PersonaController::class,'searchDni']);
 Route::get('/propietarios', [Propietario::class, 'obtenerTodos']);
-Route::get('/propietarios/{id}', [Propietario::class, 'obtenerPorId']);
 Route::put('/propietarios/{id}', [Propietario::class, 'actualizarDatos']);
 Route::post('/carnet', [CarnetController::class, 'register']);
-Route::post('/refresh', [AuthController::class, 'refresh']);
+Route::get('/carnet', [CarnetController::class, 'listcarnet']);
+Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
+Route::post('/multa', [MultaController::class, 'registerMulta']);
+Route::post('/licencia', [LicenciaController::class, 'register']);
+Route::get('/licencia/{dni}', [LicenciaController::class, 'obtnerlicencia']);
+Route::get('/licencia-expedir/{id}', [LicenciaController::class, 'expedirLicencia']);
+
+

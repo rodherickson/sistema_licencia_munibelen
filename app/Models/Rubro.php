@@ -15,16 +15,4 @@ class Rubro extends Model
     'estado',];
     use HasFactory;
 
-
-
-    public static function listRubro(){
-        $rubro=DB::table('rubro')
-        ->get();
-        return $rubro;
-    }
-
-    public function carnets()
-    {
-        return $this->hasMany(CarnetModel::class, 'id_rubro');
-    }
 }

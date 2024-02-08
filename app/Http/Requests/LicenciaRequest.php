@@ -35,12 +35,15 @@ class LicenciaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'idpropietario' => 'required|numeric',
-            'nombreempresa' => 'required|string|max:255',
+           
+            'razonSocial' => 'required|string|max:255',
+            'nombreComercial' => 'required|string|max:255',
             'ruc' => 'required|numeric',
-            'direccion' => 'required|string|max:255',
+            'direccionEstablecimiento' => 'required|string|max:255',
+            'distritoEstablecimiento' => 'required|string|max:255',
             'area' => 'required|numeric',
             'aforo' => 'required|numeric',
+            'inspector' => 'required|string|max:255',
             'files.*' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png,gif',
         ];
     }
@@ -48,13 +51,16 @@ class LicenciaRequest extends FormRequest
     public function messages(): array
     {
         return[
-            'idpropietario.required' => 'Debe ingresar un propietario :(',
-            'nombreempresa.required' => 'Debe ingresar un nombre de la empresa :(',
+            'razonSocial.required' => 'Debe ingresar un nombre de la razon Social :(',
             'ruc.required' => 'Debe ingresar Su ruc :(',
-            'direccion.required' => 'Debe ingresar una direccion :(',
+            'nombreComercial.required' => 'Debe ingresar una nombre Comercial :(',
+            'direccionEstablecimiento.required' => 'Debe ingresar Dirección Del Establecimiento :(',
+            'distritoEstablecimiento.required' => 'Debe ingresar Distrito Del Establecimiento :(',
             'area.required' => 'Debe ingresar una longitud de area :(',
+            'inspector.required' => 'Debe ingresar inspector :(',
+            'area.numeric' => 'Debe ingresar una cantidad numerica :(',
             'aforo.required' => 'Debe ingresar un numero de aforo :(',
-            'files.required' => 'Debe subir por lo menos un archivo',
+            'files.*.required' => 'Debe subir por lo menos un archivo',
             'files.*.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
             
         ];

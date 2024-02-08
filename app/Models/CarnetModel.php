@@ -15,18 +15,15 @@ class CarnetModel extends Model
     protected $fillable = [
         'idpropietario', 
         'idrubro', 
-        'ubicacion', 
+        'lugarEstablecimiento', 
         'cuadra', 
         'largo', 
         'ancho',
-        'n_mesa',
+        'nroMesa',
         'categoria',
-        'fecha_emision',
-        'fecha_caducidad'
+        'fechaEmision',
+        'fechaCaducidad'
     ];
 
-    public function rubro()
-    {
-        return $this->belongsTo(Rubro::class, 'id_rubro');
-    }
+  
 }
