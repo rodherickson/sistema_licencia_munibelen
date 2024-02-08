@@ -27,12 +27,12 @@ class Rubro extends Controller
                 ];
             }
     
-            return response()->json(['rubros' => $rubros]); // Devolvemos los rubros formateados como respuesta JSON
+            return response()->json(['success' => true, 'message' => 'Rubros obtenidos con éxito', 'rubros' => $rubros]);
             
         }
 
            catch(\Exception $e){
-            return response()->json(['status'=>'success', 'message' => 'No hay rubro'], 500);
+            return response()->json(['success' => false, 'message' => 'Error al obtener los rubros: ' . $e->getMessage()], 500);
     
   
               }  
