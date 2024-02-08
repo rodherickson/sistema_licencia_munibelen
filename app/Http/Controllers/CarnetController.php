@@ -100,10 +100,10 @@ class CarnetController extends Controller
 
 
         $carnet = DB::table('carnet as c')
-                    ->select('p.apellido', 'p.nombre', 'p.dni', 'p.direccion',
+                    ->select('p.apellidos', 'p.nombre', 'p.dni', 'p.direccion',
                              'c.lugarEstablecimiento', 'c.cuadra', 'c.largo', 'c.ancho',
                              'r.nombre_rubro as rubro',
-                             'c.n_mesa', 'c.categoria', 'c.fecha_emision', 'c.fecha_caducidad',
+                             'c.nroMesa', 'c.categoria', 'c.fechaEmision', 'c.fechaCaducidad',
                              'cf.original_name', 'cf.path_file')
                     ->join('carnet_files as cf', 'c.id', '=', 'cf.id_carnet_files')
                     ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
