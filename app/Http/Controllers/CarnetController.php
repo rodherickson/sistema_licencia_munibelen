@@ -16,75 +16,78 @@ use Illuminate\Support\Facades\Validator;
 class CarnetController extends Controller
 {
 
-    public function register(CarnetRequest $request){
-        {  
-            try {
-                DB::beginTransaction();
-                
-                $propietario = Propietario::create([
-                    'nombre'=> $request->nombre,
-                    'apellidos'=> $request->apellidos,
-                    'dni'=> $request->dni,
-                    'celular'=> $request->celular,
-                    'correo'=> $request->correo,
-                    'direccion'=> $request->direccion,
-                    'distrito' => $request->distrito,
-                ]);
-                
-                $fechaEmision = Carbon::createFromFormat('Y/m/d', date('Y/m/d'));
-                $fechaCaducidad = $fechaEmision->addMonths(6)->format('Y/m/d');
-    
-
-                $Carnet = CarnetModel::create([
-                    'idpropietario'=> $propietario->id,
-                    'idrubro'=> $request->idrubro,
-                    'lugarEstablecimiento'=> $request->lugarEstablecimiento,
-                    'cuadra'=> $request->cuadra,
-                    'largo'=> $request->largo,
-                    'ancho'=> $request->ancho,
-                    'nroMesa'=> $request->nroMesa,//cambiar a nroMesa
-                    'categoria'=> $request->categoria,
-                    'fechaEmision'=>  $fechaEmision,//cambiar a fechaEmision
-                    'fechaCaducidad'=> $fechaCaducidad,//cambiar a fechaCaducidad
-                ]);
-
-                
-
-                if ($request->hasFile('files') && count($request->file('files')) > 0)  {
-                    $archivo=$request->file('files');
-                    foreach ($request->file('files') as $file) {
-                        $filename = $file->getClientOriginalName();
-                        $extension = $file->getClientOriginalExtension();
-                        $uniqueName = date('YmdHis') . rand(10,99);
+    public function register(CarnetRequest $request)
+    {  
+        try {
+            DB::beginTransaction();
             
-                        $path = $file->storeAs(
+            $propietario = Propietario::create([
+                'nombre'=> $request->nombre,
+                'apellidos'=> $request->apellidos,
+                'dni'=> $request->dni,
+                'celular'=> $request->celular,
+                'correo'=> $request->correo,
+                'direccion'=> $request->direccion,
+                'distrito' => $request->distrito,
+            ]);
+            
+            $fechaEmision = Carbon::createFromFormat('Y/m/d', date('Y/m/d'));
+            $fechaCaducidad = $fechaEmision->addMonths(6)->format('Y/m/d');
     
-                            'carnet/' . date('Y/m'),
-                            $uniqueName . '.' . $extension,
-                            'public'
-                        );
-                        $id = $Carnet->id;
-                        Carnet_files::saveFiles($Carnet->id,$filename, $uniqueName, $extension, $path );
+            $carnet = CarnetModel::create([
+                'idpropietario'=> $propietario->id,
+                'idrubro'=> $request->idrubro,
+                'lugarEstablecimiento'=> $request->lugarEstablecimiento,
+                'cuadra'=> $request->cuadra,
+                'largo'=> $request->largo,
+                'ancho'=> $request->ancho,
+                'nroMesa'=> $request->nroMesa,//cambiar a nroMesa
+                'categoria'=> $request->categoria,
+                'fechaEmision'=>  $fechaEmision,//cambiar a fechaEmision
+                'fechaCaducidad'=> $fechaCaducidad,//cambiar a fechaCaducidad
+            ]);
+    
+            if (($request->hasFile('fotoVendedor') && count($request->file('fotoVendedor')) > 0) || ($request->hasFile('anexosAdjuntos') && count($request->file('anexosAdjuntos')) > 0)) {
+                // Procesar archivos
+                foreach (['fotoVendedor', 'anexosAdjuntos'] as $fileType) {
+                    if ($request->hasFile($fileType)) {
+                        foreach ($request->file($fileType) as $file) {
+                            $filename = $file->getClientOriginalName();
+                            $extension = $file->getClientOriginalExtension();
+                            $uniqueName = date('YmdHis') . rand(10,99);
+                
+                            $path = $file->storeAs(
+                                'carnet/' . date('Y/m'),
+                                $uniqueName . '.' . $extension,
+                                'public'
+                            );
+            
+                            // Determinar la categoría del archivo
+                            if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png'])) {
+                                $categoria = 'foto';
+                            } elseif (in_array(strtolower($extension), ['pdf', 'doc', 'docx'])) {
+                                $categoria = 'anexo';
+                            }
+            
+                            // Guardar el archivo con su categoría
+                            Carnet_files::saveFiles($carnet->id, $filename, $uniqueName, $extension, $path, $categoria);
+                        }
                     }
                 }
-                else {
-                    return response()->json([
-                        'message' => 'Se requiere al menos un archivo.',
-                    ], 422); // Código de error de validación
-    
-                
+            
+                DB::commit();
+            
+                return response()->json(['success' => true, 'message' => 'Datos guardados correctamente']);
+                        
+            } else {
+                return response()->json([
+                    'message' => 'Se requiere al menos un archivo.',
+                ], 422);
             }
-
-            DB::commit();
-    
-            return response()->json(['success' => true, 'message' => 'Datos guardados correctamente']);
-                
-            } catch (\Throwable $e){
-                DB::rollBack();
-                return response()->json(['success' => false, 'message' => 'Error al guardar los datos: ' . $e->getMessage()], 500);
-            }
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Error al guardar los datos: ' . $e->getMessage()], 500);
         }
-    
     }
 
     public function obtenercarnet(Request $request,$dni)
