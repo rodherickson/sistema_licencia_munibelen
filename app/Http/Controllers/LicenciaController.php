@@ -75,7 +75,7 @@ class LicenciaController extends Controller
     
                 $path = $file->storeAs(
 
-                    'carnet/' . date('Y/m'),
+                    'licencia/' . date('Y/m'),
                     $uniqueName . '.' . $extension,
                     'public'
                 );
