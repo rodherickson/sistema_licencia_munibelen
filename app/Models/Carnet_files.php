@@ -19,10 +19,11 @@ class Carnet_files extends Model
         'unique_name',
         'type_file',
         'path_file',
+        'categoria',
         'date_create'
     ];
 
-    public static function saveFiles($id, $filename, $unique_name, $extension, $path)
+    public static function saveFiles($id, $filename, $unique_name, $extension, $path,$categoria)
     {
         Carnet_files::create([
             'id_carnet_files' => $id,
@@ -30,6 +31,7 @@ class Carnet_files extends Model
             'unique_name' => $unique_name,
             'type_file' => $extension,
             'path_file' => $path,
+            'categoria' => $categoria,
             'date_create' => date('Y-m-d')
         ]);
     }
