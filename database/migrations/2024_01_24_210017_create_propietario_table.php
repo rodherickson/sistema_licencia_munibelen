@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('propietario', function (Blueprint $table) {
             $table->id();
             $table->string('nombre',255);
-            $table->string('apellido',255);
-            $table->string('dni',8);
+            $table->string('apellidos',255);
+            $table->string('dni', 8)->unique();
             $table->string('celular',255);
             $table->string('correo',255);
             $table->string('direccion',255);
+            $table->string('distrito',255);
         });
     }
 

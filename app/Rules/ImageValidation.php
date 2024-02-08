@@ -33,7 +33,7 @@ class ImageValidation implements ValidationRule
 
         if ($anchoImagenRecibida >= $anchoCarnet && (round($proporcionCarnet, 2) === round($proporcionImagenRecibida, 2))) {
             // La imagen cumple con los estándares
-            return;
+           
         } else {
             // La imagen no cumple con los estándares
             $fail("La imagen no cumple con los estándares.");

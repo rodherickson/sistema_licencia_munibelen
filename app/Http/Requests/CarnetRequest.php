@@ -35,11 +35,11 @@ class CarnetRequest extends FormRequest
     {
         return [
             'idrubro' => 'required|numeric',
-            'ubicacion' => 'required|string|max:255',
+            'lugarEstablecimiento' => 'required|string|max:255',
             'cuadra' => 'required|numeric',
             'largo' => 'required|numeric',
             'ancho' => 'required|numeric',
-            'n_mesa' => 'required|numeric',
+            'nroMesa' => 'required|numeric',
             'categoria' => 'required|string',
             'files.*' => [
                 'required',
@@ -55,18 +55,18 @@ class CarnetRequest extends FormRequest
         return[
             'idpropietario.required' => 'Debe ingresar un propietario :(',
             'idrubro.required' => 'Debe ingresar un rubro :(',
-            'ubicacion.required' => 'Debe ingresar una ubicacion :(',
+            'lugarEstablecimiento.required' => 'Debe ingresar un lugarEstablecimiento :(',
             'cuadra.required' => 'Debe ingresar una cuadra :(',
             'largo.required' => 'Debe ingresar una longitud de largo :(',
             'ancho.required' => 'Debe ingresar una longitud de ancho :(',
-            'n_mesa.required' => 'Debe ingresar un numero de mesa :(',
+            'nroMesa.required' => 'Debe ingresar un numero de mesa :(',
             'categoria.required' => 'Debe ingresar una categoria :(',
             'files.*.required' => 'Debe subir por lo menos un archivo',
             'files.*.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
             'files.*.dimensions' => 'Dimensiones de la imagen inválidas',
             'files.*.max' => 'archivo muy pesado',
-            'fecha_emision.required' => 'Debe ingresar una fecha de emision :(',
-            'fecha_caducidad.required' => 'Debe ingresar una fecha de caducidad :(',
+            'fechaEmision.required' => 'Debe ingresar una fecha de emision :(',
+            'fechaCaducidad.required' => 'Debe ingresar una fecha de caducidad :(',
         ];
     }
 

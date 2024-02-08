@@ -11,11 +11,13 @@ class Propietario extends Model
      public $timestamps = false;
     protected $table = 'propietario'; 
     protected $fillable = ['nombre', 
-    'apellido', 
+    'apellidos', 
     'dni', 
     'celular', 
     'correo', 
-    'direccion'];
+    'direccion',
+    'distrito'
+];
     use HasFactory;
     public static function obtenerTodos()
     {

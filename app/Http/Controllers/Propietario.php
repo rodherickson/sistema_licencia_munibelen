@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use App\Http\Requests\Propietario as pros;
 use App\Models\Propietario as pro;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 class Propietario extends Controller
 {
     public function obtenerTodos()
@@ -26,21 +27,5 @@ class Propietario extends Controller
             return response()->json(['error' => 'Propietario no encontrado'], Response::HTTP_NOT_FOUND);
         }
     }
-
-
-    public function getDatosPorDni($dni)
-    {
-       $propietario = pro::where('dni', $dni)->first();
-
-        if (!$propietario) {
-             return response()->json(['error' => 'No se encontró ningún vendedor con ese DNI'], 404);
-        }
-
-        return response()->json([
-             'apellido' => $propietario->apellido,
-            'nombres' => $propietario->nombre
-         ]);
-     }
-
     
 }

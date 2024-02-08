@@ -13,14 +13,19 @@ class LicenciaModel extends Model
 
     protected $fillable = [
         'idpropietario', 
-        'nombreempresa', 
-        'denominacion_local',
+        'idrubro',
+        'idrazonSocial', 
+        'idnombreComercial',
         'ruc', 
-        'direccion', 
+        'direccionEstablecimiento', 
+        'distritoEstablecimiento',
         'area', 
+        'inspector', 
         'aforo',
-        'fecha_emision',
-        'fecha_caducidad'
+        'fechaEmision',
+         'fechaCaducidad'
     ];
+
+
 
 }

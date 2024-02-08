@@ -23,28 +23,29 @@ class CarnetController extends Controller
                 
                 $propietario = Propietario::create([
                     'nombre'=> $request->nombre,
-                    'apellido'=> $request->apellido,
+                    'apellidos'=> $request->apellidos,
                     'dni'=> $request->dni,
                     'celular'=> $request->celular,
                     'correo'=> $request->correo,
                     'direccion'=> $request->direccion,
+                    'distrito' => $request->distrito,
                 ]);
                 
-                $fecha_emision = Carbon::createFromFormat('Y/m/d', date('Y/m/d'));
-                $fecha_caducidad = $fecha_emision->addMonths(6)->format('Y/m/d');
+                $fechaEmision = Carbon::createFromFormat('Y/m/d', date('Y/m/d'));
+                $fechaCaducidad = $fechaEmision->addMonths(6)->format('Y/m/d');
     
 
                 $Carnet = CarnetModel::create([
                     'idpropietario'=> $propietario->id,
                     'idrubro'=> $request->idrubro,
-                    'ubicacion'=> $request->ubicacion,
+                    'lugarEstablecimiento'=> $request->lugarEstablecimiento,
                     'cuadra'=> $request->cuadra,
                     'largo'=> $request->largo,
                     'ancho'=> $request->ancho,
-                    'n_mesa'=> $request->n_mesa,
+                    'nroMesa'=> $request->nroMesa,//cambiar a nroMesa
                     'categoria'=> $request->categoria,
-                    'fecha_emision'=>  $fecha_emision,
-                    'fecha_caducidad'=> $fecha_caducidad,
+                    'fechaEmision'=>  $fechaEmision,//cambiar a fechaEmision
+                    'fechaCaducidad'=> $fechaCaducidad,//cambiar a fechaCaducidad
                 ]);
 
                 
@@ -100,13 +101,13 @@ class CarnetController extends Controller
 
         $carnet = DB::table('carnet as c')
                     ->select('p.apellido', 'p.nombre', 'p.dni', 'p.direccion',
-                             'c.ubicacion', 'c.cuadra', 'c.largo', 'c.ancho',
+                             'c.lugarEstablecimiento', 'c.cuadra', 'c.largo', 'c.ancho',
                              'r.nombre_rubro as rubro',
                              'c.n_mesa', 'c.categoria', 'c.fecha_emision', 'c.fecha_caducidad',
                              'cf.original_name', 'cf.path_file')
                     ->join('carnet_files as cf', 'c.id', '=', 'cf.id_carnet_files')
                     ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
-                    ->join('rubro as r', 'r.id', '=', 'c.idrubro')
+                    ->join('rubro as r','r.id','=','c.idrubro')
                     ->where('p.dni',$dni)
                     ->where(function ($query) {
                         $query->where('cf.path_file', 'LIKE', '%.jpg')
