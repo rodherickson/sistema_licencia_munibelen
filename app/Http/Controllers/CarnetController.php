@@ -77,16 +77,11 @@ class CarnetController extends Controller
 
             DB::commit();
     
-                return response()->json([
-                    'message' => 'Datos guardados',
-                ], 200);
+            return response()->json(['success' => true, 'message' => 'Datos guardados correctamente']);
                 
             } catch (\Throwable $e){
                 DB::rollBack();
-                return response()->json([
-                    'status' =>'error',
-                    'message' =>$e->getMessage()
-                ], 500);
+                return response()->json(['success' => false, 'message' => 'Error al guardar los datos: ' . $e->getMessage()], 500);
             }
         }
     
