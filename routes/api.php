@@ -27,6 +27,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::get('/rubro', [Rubro::class, 'listRubro']);
 Route::get('/persona/{dni}',[PersonaController::class,'searchDni']);
+Route::get('/persona/ruc/{ruc}',[PersonaController::class,'searchRuc']);
 Route::get('/propietarios', [Propietario::class, 'obtenerTodos']);
 Route::put('/propietarios/{id}', [Propietario::class, 'actualizarDatos']);
 Route::post('/carnet', [CarnetController::class, 'register']);
@@ -35,6 +36,6 @@ Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
 Route::post('/multa', [MultaController::class, 'registerMulta']);
 Route::post('/licencia', [LicenciaController::class, 'register']);
 Route::get('/licencia/{dni}', [LicenciaController::class, 'obtnerlicencia']);
-Route::get('/licencia-expedir/{id}', [LicenciaController::class, 'expedirLicencia']);
+Route::get('/licencia/expedir/{id}', [LicenciaController::class, 'expedirLicencia']);
 
 

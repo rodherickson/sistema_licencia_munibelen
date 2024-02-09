@@ -64,4 +64,42 @@ class PersonaController extends Controller
         chmod($pathFile, 0644);
     }
     
+
+    public static function searchRuc($ruc)
+    {
+        if(strlen($ruc) != 11 || !is_numeric($ruc)){
+            return response()->json(['status'=>'error', 'message'=>'El número ingresado no es válido.']);
+        }
+        
+        $apiUrl = 'https://dniruc.apisperu.com/api/v1/ruc/'.$ruc;
+        $tokens = json_decode(file_get_contents(base_path('app/VisitasToken.json')), true);
+        $response = self::curlOperations($tokens, $apiUrl);
+        
+        if(!$response){
+            return response()->json(['status'=>'error', 'message'=>'Servicio no disponible en este momento.']);  
+        }
+    
+        $responseData = json_decode($response, true);
+    
+        // Verificar si la solicitud fue exitosa
+        if(isset($responseData['ruc'])) {
+            $ruc = $responseData['ruc'];
+            $razonSocial = $responseData['razonSocial'];
+            $direccion = $responseData['direccion'];
+    
+            // Aquí puedes hacer lo que desees con los datos obtenidos
+            return response()->json([
+                'status' => 'success',
+                'ruc' => $ruc,
+                'razonSocial' => $razonSocial,
+                'direccion' => $direccion
+            ]);
+        } else {
+            return response()->json(['status'=>'error', 'message'=>'No se pudo obtener la información del RUC.']);  
+        }
+    }  
+    
+
+    
+
 }
