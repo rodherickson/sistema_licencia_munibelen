@@ -44,7 +44,7 @@ class LicenciaRequest extends FormRequest
             'area' => 'required|numeric',
             'aforo' => 'required|numeric',
             'inspector' => 'required|string|max:255',
-            'files.*' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png,gif',
+            'anexosAdjuntos.*' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png,gif',
         ];
     }
 

@@ -48,7 +48,7 @@ class LicenciaController extends Controller
         }
 
         $fechaEmision = Carbon::now();
-        $fechaCaducidad = $fechaEmision->addMonths(6);
+        $fechaCaducidad = Carbon::now()->addMonths(6);
 
         $licencia = LicenciaModel::create([
             'idpropietario' => $propietario->id,
@@ -66,9 +66,9 @@ class LicenciaController extends Controller
         ]);
 
        
-        if ($request->hasFile('files') && count($request->file('files')) > 0)  {
-            $archivo=$request->file('files');
-            foreach ($request->file('files') as $file) {
+        if ($request->hasFile('anexosAdjuntos') && count($request->file('anexosAdjuntos')) > 0)  {
+            $archivo=$request->file('anexosAdjuntos');
+            foreach ($request->file('anexosAdjuntos') as $file) {
                 $filename = $file->getClientOriginalName();
                 $extension = $file->getClientOriginalExtension();
                 $uniqueName = date('YmdHis') . rand(10,99);
@@ -94,12 +94,14 @@ class LicenciaController extends Controller
         DB::commit();
 
         return response()->json([
+            'success' => true,
             'message' => 'Datos guardados',
         ], 200);
     } catch (\Throwable $e) {
         DB::rollBack();
         return response()->json([
-            'status' => 'error',
+            'success' => false,
+            'status' => 'error al guardar los datos',
             'message' => $e->getMessage()
         ], 500);
     }
@@ -108,6 +110,7 @@ class LicenciaController extends Controller
     //areglar crear tabla 
     public function obtnerlicencia(Request $request, $dni)
     {
+        try{
 
         if (!is_numeric($dni) || strlen($dni) !== 8) {
             return response()->json(['error' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
@@ -117,26 +120,28 @@ class LicenciaController extends Controller
             ->join('carnet_files as cf', 'c.id', '=', 'cf.id_carnet_files')
             ->join('licencia as li', 'p.id', '=', 'li.idpropietario')
             ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
+            ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
+            ->join('nombrescomerciales as no', 'no.id', '=', 'li.idnombreComercial')
             ->select(
                 'p.id as id_propietario',
                 'p.dni',
                 'p.nombre',
-                'p.apellido',
+                'p.apellidos',
                 'cf.path_file as foto',
                 'p.direccion',
                 'li.id as id_licencia',
-                'li.razonSocial',
-                'li.id as id_razonSocial',
-                'li.nombreComercial',
-                'li.id as id_nombreComercial',
+                'ra.razonSocial',
+                'idrazonsocial as id_razonSocial',
+                'no.nombreComercial',
+                'li.idnombreComercial as id_nombreComercial',
                 'li.ruc',
                 'li.direccionEstablecimiento as direccion del Establecimiento',
                 'li.area',
                 'ru.id as id_rubro',
                 'ru.nombre_rubro as rubro',
                 'li.aforo',
-                'li.fecha_emision',
-                'li.fecha_caducidad'
+                'li.fechaEmision',
+                'li.fechaCaducidad'
             )
             ->where('p.dni', $dni)
             ->whereRaw("(cf.path_file LIKE '%.jpg' OR cf.path_file LIKE '%.jpeg' OR cf.path_file LIKE '%.png')")
@@ -149,7 +154,7 @@ class LicenciaController extends Controller
         $propietario = [
             'dni' => $consulta[0]->dni,
             'nombre' => $consulta[0]->nombre,
-            'apellido' => $consulta[0]->apellido,
+            'apellidos' => $consulta[0]->apellidos,
             'foto' => $consulta[0]->foto,
             'direccion' => $consulta[0]->direccion,
             'establecimientos' => []
@@ -198,23 +203,41 @@ class LicenciaController extends Controller
 
         $propietario['establecimientos'] = array_values($empresas);
 
-        return response()->json(['propietario' => $propietario]);
+        return response()->json([
+        'success' => true,
+        'message' => 'Datos obtenidos correctamente',
+        'propietario' => $propietario]);
+    }
+
+     catch (\Exception $e)
+    {
+        return response()->json(['success' => false, 'message' => 'Se produjo un error al obtener la licencia. '], 500);
+    }
+
     }
 
     public function expedirLicencia($id){
 
-        $licencia = DB::table('licencia')
-        ->select('licencia.id', 'licencia.razonSocial', 'licencia.nombreComercial as denominado', 'licencia.area', 'licencia.direccionEstablecimiento', 'licencia.fecha_caducidad as Vigencia', 'propietario.dni', 'licencia.ruc', 'licencia.inspector', 'licencia.fecha_emision')
-        ->join('propietario', 'propietario.id', '=', 'licencia.idpropietario')
-        ->join('rubro', 'rubro.id', '=', 'licencia.idrubro')
-        ->where('licencia.id', $id)
-        ->first();
-
-if ($licencia) {
-return response()->json($licencia);
-} else {
-return response()->json(['error' => 'Licencia no encontrada'], 404);
-}
-
+        try {
+            $licencia = DB::table('licencia as li')
+                ->select('li.id', 'ra.razonSocial', 'ru.nombre_rubro', 'nom.nombreComercial as denominado', 'li.area', 'li.direccionEstablecimiento', 'li.fechaCaducidad as Vigencia', 'p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision')
+                ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
+                ->join('nombrescomerciales as nom', 'nom.id', '=', 'li.idnombreComercial')
+                ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
+                ->join('propietario as p', 'p.id', '=', 'li.idpropietario')
+                ->where('li.idnombreComercial', $id)
+                ->first();
+    
+            if ($licencia) {
+                return response()->json(['success' => true,
+                'message' => 'Datos obtenidos correctamente',
+                'carnet' => $licencia]);
+            } else {
+                return response()->json(['error' => 'Licencia no encontrada'], 404);
+            }
+        } catch (\Exception $e) {
+            
+            return response()->json(['error' => 'Se produjo un error al expedir la licencia.'], 500);
+        }
     }
 }

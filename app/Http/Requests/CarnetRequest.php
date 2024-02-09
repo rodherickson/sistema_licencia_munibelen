@@ -45,10 +45,9 @@ class CarnetRequest extends FormRequest
                 'required',
                 'mimes:jpg,jpeg,png,gif',
                 'min:1',
-               new ImageValidation
+                new ImageValidation,
             ],
-
-            'anexosAdjuntos*' => [
+            'anexosAdjuntos.*' => [
                 'required',
                 'mimes:doc,docx,pdf',
                 'min:1',
@@ -68,10 +67,6 @@ class CarnetRequest extends FormRequest
             'ancho.required' => 'Debe ingresar una longitud de ancho :(',
             'nroMesa.required' => 'Debe ingresar un numero de mesa :(',
             'categoria.required' => 'Debe ingresar una categoria :(',
-            'files.*.required' => 'Debe subir por lo menos un archivo',
-            'files.*.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
-            'files.*.dimensions' => 'Dimensiones de la imagen inválidas',
-            'files.*.max' => 'archivo muy pesado',
             'fechaEmision.required' => 'Debe ingresar una fecha de emision :(',
             'fechaCaducidad.required' => 'Debe ingresar una fecha de caducidad :(',
         ];

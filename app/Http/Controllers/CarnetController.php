@@ -31,8 +31,8 @@ class CarnetController extends Controller
                 'distrito' => $request->distrito,
             ]);
             
-            $fechaEmision = Carbon::createFromFormat('Y/m/d', date('Y/m/d'));
-            $fechaCaducidad = $fechaEmision->addMonths(6)->format('Y/m/d');
+            $fechaEmision = Carbon::now();
+            $fechaCaducidad = Carbon::now()->addMonths(6);
     
             $carnet = CarnetModel::create([
                 'idpropietario'=> $propietario->id,
@@ -43,12 +43,12 @@ class CarnetController extends Controller
                 'ancho'=> $request->ancho,
                 'nroMesa'=> $request->nroMesa,//cambiar a nroMesa
                 'categoria'=> $request->categoria,
-                'fechaEmision'=>  $fechaEmision,//cambiar a fechaEmision
+                'fechaEmision'=>$fechaEmision,//cambiar a fechaEmision
                 'fechaCaducidad'=> $fechaCaducidad,//cambiar a fechaCaducidad
             ]);
     
             if (($request->hasFile('fotoVendedor') && count($request->file('fotoVendedor')) > 0) || ($request->hasFile('anexosAdjuntos') && count($request->file('anexosAdjuntos')) > 0)) {
-                // Procesar archivos
+               
                 foreach (['fotoVendedor', 'anexosAdjuntos'] as $fileType) {
                     if ($request->hasFile($fileType)) {
                         foreach ($request->file($fileType) as $file) {
@@ -90,45 +90,59 @@ class CarnetController extends Controller
         }
     }
 
-    public function obtenercarnet(Request $request,$dni)
-    {   
-        if (!is_numeric($dni) || strlen($dni) !== 8) {
-            return response()->json(['error' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
-        }
-
-
-        $carnet = DB::table('carnet as c')
-                    ->select('p.apellidos', 'p.nombre', 'p.dni', 'p.direccion',
-                             'c.lugarEstablecimiento', 'c.cuadra', 'c.largo', 'c.ancho',
-                             'r.nombre_rubro as rubro',
-                             'c.nroMesa', 'c.categoria', 'c.fechaEmision', 'c.fechaCaducidad',
-                             'cf.original_name', 'cf.path_file')
-                    ->join('carnet_files as cf', 'c.id', '=', 'cf.id_carnet_files')
-                    ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
-                    ->join('rubro as r','r.id','=','c.idrubro')
-                    ->where('p.dni',$dni)
-                    ->where(function ($query) {
-                        $query->where('cf.path_file', 'LIKE', '%.jpg')
-                              ->orWhere('cf.path_file', 'LIKE', '%.jpeg')
-                              ->orWhere('cf.path_file', 'LIKE', '%.png');
-                    })
-                    ->get();
+    public function obtenercarnet(Request $request, $dni)
+    {
+        try {
+            if (!is_numeric($dni) || strlen($dni) !== 8) {
+                return response()->json(['error' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
+            }
     
-        return response()->json($carnet);
+            $carnet = DB::table('carnet as c')
+                        ->select('p.apellidos', 'p.nombre', 'p.dni', 'p.direccion',
+                                 'c.lugarEstablecimiento', 'c.cuadra', 'c.largo', 'c.ancho',
+                                 'r.nombre_rubro as rubro',
+                                 'c.nroMesa', 'c.categoria', 'c.fechaEmision', 'c.fechaCaducidad',
+                                 'cf.original_name', 'cf.path_file')
+                        ->join('carnet_files as cf', 'c.id', '=', 'cf.id_carnet_files')
+                        ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
+                        ->join('rubro as r','r.id','=','c.idrubro')
+                        ->where('p.dni', $dni)
+                        ->where(function ($query) {
+                            $query->where('cf.path_file', 'LIKE', '%.jpg')
+                                  ->orWhere('cf.path_file', 'LIKE', '%.jpeg')
+                                  ->orWhere('cf.path_file', 'LIKE', '%.png');
+                        })
+                        ->get();
+                        if ($carnet->isEmpty()) {
+                            return response()->json(['error' => 'No se encontró ningún carnet con el DNI especificado.'], 404);
+                        }
+    
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Datos obtenidos correctamente',
+                            'carnet' => $carnet
+                        ]);
+        } catch (\Exception $e) {
+            // Manejo de la excepción
+            return response()->json(['success' => false, 'message' => 'Se produjo un error al obtener el carnet. '], 500);
+        }
     }
-
     public function listcarnet()
     {
 
+    try{
     $carnet = DB::table('carnet as c')
-    ->select('c.id', DB::raw("CONCAT(p.nombre, ' ', p.apellido) AS nombre_completo"), 'r.nombre_rubro as rubro', 'c.fecha_emision', 'c.fecha_caducidad')
+    ->select('c.id','p.nombre','p.apellidos','p.dni','r.nombre_rubro as rubro', 'c.fechaEmision', 'c.fechaCaducidad')
     ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
     ->join('rubro as r', 'r.id', '=', 'c.idrubro')
-    ->orderBy('c.fecha_caducidad', 'ASC')
+    ->orderBy('c.fechaCaducidad', 'ASC')
     ->get();
 
-return response()->json($carnet);
-
+    return response()->json(['success' => true, 'message' => 'Carnet obtenidos con éxito', 'carnet' => $carnet]);
+    }
+    catch (\Exception $e){
+        return response()->json(['success' => false, 'message' => 'Error al obtener los carnet: ' . $e->getMessage()], 500);
+    }
 
     }
     
