@@ -47,8 +47,8 @@ class LicenciaController extends Controller
             ]);
         }
 
-        $fechaEmision = Carbon::now();
-        $fechaCaducidad = Carbon::now()->addMonths(6);
+        $fechaEmision = Carbon::createFromFormat('Y/m/d', $request->fechaEmision);
+        $fechaCaducidad = $fechaEmision->copy()->addMonths(12);
 
         $licencia = LicenciaModel::create([
             'idpropietario' => $propietario->id,
@@ -61,8 +61,8 @@ class LicenciaController extends Controller
             'area' => $request->area,
             'inspector' => $request->inspector,
             'aforo' => $request->aforo,
-            'fechaEmision' => $fechaEmision,
-            'fechaCaducidad' => $fechaCaducidad,
+            'fechaEmision' => $fechaEmision->format('Y/m/d'),
+            'fechaCaducidad' => $fechaCaducidad->format('Y/m/d'),
         ]);
 
        
@@ -101,7 +101,7 @@ class LicenciaController extends Controller
         DB::rollBack();
         return response()->json([
             'success' => false,
-            'status' => 'error al guardar los datos',
+            // 'status' => 'error al guardar los datos',
             'message' => $e->getMessage()
         ], 500);
     }
@@ -113,7 +113,7 @@ class LicenciaController extends Controller
         try{
 
         if (!is_numeric($dni) || strlen($dni) !== 8) {
-            return response()->json(['error' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
+            return response()->json(['success'=>false,'message' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
         }
         $consulta = DB::table('propietario as p')
             ->join('carnet as c', 'p.id', '=', 'c.idpropietario')
@@ -148,7 +148,7 @@ class LicenciaController extends Controller
             ->get();
 
         if ($consulta->isEmpty()) {
-            return response()->json(['error' => 'No se encontraron datos para el DNI proporcionado.'], 404);
+            return response()->json(['success' => false, 'message' => 'No se encontraron datos para el ID proporcionado.'], 404);
         }
 
         $propietario = [
@@ -220,7 +220,7 @@ class LicenciaController extends Controller
 
         try {
             $licencia = DB::table('licencia as li')
-                ->select('li.id', 'ra.razonSocial', 'ru.nombre_rubro', 'nom.nombreComercial as denominado', 'li.area', 'li.direccionEstablecimiento', 'li.fechaCaducidad as Vigencia', 'p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision')
+                ->select('li.id', 'ra.razonSocial', 'ru.nombreRubro', 'nom.nombreComercial ', 'li.area', 'li.direccionEstablecimiento', 'li.fechaCaducidad as vigencia', 'p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision')
                 ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
                 ->join('nombrescomerciales as nom', 'nom.id', '=', 'li.idnombreComercial')
                 ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
@@ -233,11 +233,11 @@ class LicenciaController extends Controller
                 'message' => 'Datos obtenidos correctamente',
                 'carnet' => $licencia]);
             } else {
-                return response()->json(['error' => 'Licencia no encontrada'], 404);
+                return response()->json(['success'=>false,'message' => 'Licencia no encontrada'], 404);
             }
         } catch (\Exception $e) {
             
-            return response()->json(['error' => 'Se produjo un error al expedir la licencia.'], 500);
+            return response()->json(['success'=>false,'message' => 'Se produjo un error al expedir la licencia.'], 500);
         }
     }
 }

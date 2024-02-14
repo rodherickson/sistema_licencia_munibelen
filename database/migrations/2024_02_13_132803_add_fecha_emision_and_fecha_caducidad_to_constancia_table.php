@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('constancia', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('idpropietario')->constrained('propietario');
+        Schema::table('constancia', function (Blueprint $table) {
             
-            
+            $table->date('fechaEmision');
+            $table->date('fechaCaducidad');
         });
     }
 
@@ -24,6 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('constancia');
+        Schema::table('constancia', function (Blueprint $table) {
+            $table->dropColumn('fechaEmision');
+            $table->dropColumn('fechaCaducidad');
+        });
     }
 };

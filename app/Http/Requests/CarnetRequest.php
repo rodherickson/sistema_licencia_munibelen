@@ -63,12 +63,15 @@ class CarnetRequest extends FormRequest
             'idrubro.required' => 'Debe ingresar un rubro :(',
             'lugarEstablecimiento.required' => 'Debe ingresar un lugarEstablecimiento :(',
             'cuadra.required' => 'Debe ingresar una cuadra :(',
+            'cuadra.numeric' => 'Debe ingresar datos numericos en el campo cuadra :(',
             'largo.required' => 'Debe ingresar una longitud de largo :(',
+            'largo.numeric' => 'Debe ingresar datos numericos en el campo largo :(',
             'ancho.required' => 'Debe ingresar una longitud de ancho :(',
+            'ancho.numeric' => 'Debe ingresar datos numericos en el campo ancho :(',
             'nroMesa.required' => 'Debe ingresar un numero de mesa :(',
             'categoria.required' => 'Debe ingresar una categoria :(',
             'fechaEmision.required' => 'Debe ingresar una fecha de emision :(',
-            'fechaCaducidad.required' => 'Debe ingresar una fecha de caducidad :(',
+           
         ];
     }
 

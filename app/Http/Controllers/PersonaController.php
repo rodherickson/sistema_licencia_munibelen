@@ -11,7 +11,7 @@ class PersonaController extends Controller
     public static function searchDni($dni)
     {
         if(strlen($dni) != 8 || !is_numeric($dni)){
-            return response()->json(['status'=>'error', 'message'=>'El número ingresado no es valido.']);
+            return response()->json(['succes'=>false, 'message'=>'El número ingresado no es valido.']);
         }
         
         $apiUrl = 'https://dniruc.apisperu.com/api/v1/dni/'.$dni;
@@ -19,10 +19,10 @@ class PersonaController extends Controller
         $response = self::curlOperations($tokens, $apiUrl);
         
         if(!$response){
-            return response()->json(['status'=>'error', 'message'=>'Servicio no disponible en este momento.']);  
+            return response()->json(['success' =>false, 'message'=>'Servicio no disponible en este momento.']);  
         }
 
-        return response()->json(json_decode($response, true));
+        return response()->json([json_decode($response, true)]);
     }   
 
     protected static function curlOperations($arrayTokens, $datum)
@@ -68,7 +68,7 @@ class PersonaController extends Controller
     public static function searchRuc($ruc)
     {
         if(strlen($ruc) != 11 || !is_numeric($ruc)){
-            return response()->json(['status'=>'error', 'message'=>'El número ingresado no es válido.']);
+            return response()->json(['success'=>false, 'message'=>'El número ingresado no es válido.']);
         }
         
         $apiUrl = 'https://dniruc.apisperu.com/api/v1/ruc/'.$ruc;
@@ -76,7 +76,7 @@ class PersonaController extends Controller
         $response = self::curlOperations($tokens, $apiUrl);
         
         if(!$response){
-            return response()->json(['status'=>'error', 'message'=>'Servicio no disponible en este momento.']);  
+            return response()->json(['success'=>false, 'message'=>'Servicio no disponible en este momento.']);  
         }
     
         $responseData = json_decode($response, true);
@@ -89,7 +89,7 @@ class PersonaController extends Controller
     
             // Aquí puedes hacer lo que desees con los datos obtenidos
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'ruc' => $ruc,
                 'razonSocial' => $razonSocial,
                 'direccion' => $direccion
