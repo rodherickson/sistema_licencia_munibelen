@@ -62,7 +62,7 @@ class LicenciaController extends Controller
             'inspector' => $request->inspector,
             'aforo' => $request->aforo,
             'fechaEmision' => $fechaEmision->format('Y-m-d'),
-            'fechaCaducidad' => $fechaCaducidad->format('Y-m-d'),
+            'vigencia' => $request->vigencia,
         ]);
 
        
@@ -142,7 +142,7 @@ class LicenciaController extends Controller
                 'ru.nombre_rubro as rubro',
                 'li.aforo',
                 'li.fechaEmision',
-                'li.fechaCaducidad'
+                'li.vigencia'
             )
             ->where('p.dni', $dni)
             ->whereRaw("(cf.path_file LIKE '%.jpg' OR cf.path_file LIKE '%.jpeg' OR cf.path_file LIKE '%.png')")
@@ -222,7 +222,7 @@ class LicenciaController extends Controller
 {
     try {
         $licencia = DB::table('licencia as li')
-            ->select('li.id', 'ra.razonSocial', 'ru.nombre_rubro as nombreRubro', 'nom.nombreComercial', 'li.area', 'li.direccionEstablecimiento','p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision','li.fechaCaducidad as vigencia')
+            ->select('li.id', 'ra.razonSocial', 'ru.nombre_rubro as nombreRubro', 'nom.nombreComercial', 'li.area', 'li.aforo','li.direccionEstablecimiento','p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision','li.vigencia as vigencia')
             ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
             ->join('nombrescomerciales as nom', 'nom.id', '=', 'li.idnombreComercial')
             ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
@@ -234,7 +234,7 @@ class LicenciaController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Datos obtenidos correctamente',
-                'carnet' => $licencia
+                'licencia' => $licencia
             ]);
         } else {
             return response()->json([
