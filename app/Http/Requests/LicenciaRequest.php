@@ -53,13 +53,15 @@ class LicenciaRequest extends FormRequest
         return[
             'razonSocial.required' => 'Debe ingresar un nombre de la razon Social :(',
             'ruc.required' => 'Debe ingresar Su ruc :(',
+            'ruc.numeric' => 'Debe ingresar datos numericos en el campo ruc :(',
             'nombreComercial.required' => 'Debe ingresar una nombre Comercial :(',
             'direccionEstablecimiento.required' => 'Debe ingresar Dirección Del Establecimiento :(',
             'distritoEstablecimiento.required' => 'Debe ingresar Distrito Del Establecimiento :(',
             'area.required' => 'Debe ingresar una longitud de area :(',
             'inspector.required' => 'Debe ingresar inspector :(',
-            'area.numeric' => 'Debe ingresar una cantidad numerica :(',
+            'area.numeric' => 'Debe ingresar una cantidad numerica en el campo area :(',
             'aforo.required' => 'Debe ingresar un numero de aforo :(',
+            'aforo.numeric' => 'Debe ingresar una cantidad numerica en el campo aforo :(',
             'files.*.required' => 'Debe subir por lo menos un archivo',
             'files.*.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
             

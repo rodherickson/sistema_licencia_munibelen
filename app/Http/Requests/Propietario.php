@@ -33,11 +33,12 @@ class Propietario extends FormRequest
     {
         return [
             'nombre' => 'required|string|min:2|max:255',
-            'apellido' => 'required|string|min:2|max:255',
-            'dni' => 'required|string|max:8',
+            'apellidos' => 'required|string|min:2|max:255',
+            'dni'=> 'required|string|max:8',
             'celular' => 'required|string|min:2|max:255',
             'correo' => 'required|email|min:2|max:255',
             'direccion' => 'required|string|min:2|max:255',
+            'distrito' => 'required|string|min:2|max:255',
         ];
     }
 
@@ -48,14 +49,16 @@ class Propietario extends FormRequest
             'nombre.string' => 'Formato de nombre Incorrecto :(',
             'nombre.min' => 'El nombre es demasiado corto :(',
             'nombre.max' => 'El nombre es demasiado Largo :(',
-            'apellido.required' => 'Debe ingresar su apellido :(',
-            'apellido.string' => 'Su apellido debe tener un formato correcto',
+            'apellidos.required' => 'Debe ingresar su apellido :(',
+            'apellidos.string' => 'Su apellido debe tener un formato correcto',
             'dni.required' => 'Por favor ingrese su DNI',
-            'email.required' => 'Por favor ingrese su correo electrónico',
+            'dni.max' => 'su DNI debe tener 8 digitos',
+            'correo.required' => 'Por favor ingrese su correo electrónico',
             'celular.required' => 'Por favor ingrese su celular',
             'correo.email' =>  'El correo electrónico no tiene un formato valido',
             'correo.max' => 'El correo electrónico no tiene un formato valido',
-            'direccion.required' => 'Por favor ingrese contraseña',
+            'direccion.required' => 'Por favor ingrese direccion',
+            'distrito.required' => 'Por favor ingrese el distrito',
         ];
     }
 
