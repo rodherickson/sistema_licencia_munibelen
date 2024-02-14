@@ -23,7 +23,7 @@ class LicenciaModel extends Model
         'inspector', 
         'aforo',
         'fechaEmision',
-         'fechaCaducidad'
+        'vigencia'
     ];
 
 
