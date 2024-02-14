@@ -20,13 +20,13 @@ class ConstanciaController extends Controller
             throw new \Exception('El propietario con el DNI proporcionado no fue encontrado.');
         }
 
-        $fechaEmision = Carbon::createFromFormat('Y/m/d', $request->fechaEmision);
+        $fechaEmision = Carbon::createFromFormat('Y-m-d', $request->fechaEmision);
         $fechaCaducidad = $fechaEmision->copy()->addMonths(6);
 
         // Insertar los datos en la tabla 'constancia' y obtener el ID generado automáticamente
         $constanciaId = DB::table('constancia')->insertGetId([
-            'fechaEmision' => $fechaEmision->format('Y/m/d'),
-            'fechaCaducidad' => $fechaCaducidad->format('Y/m/d'),
+            'fechaEmision' => $fechaEmision->format('Y-m-d'),
+            'fechaCaducidad' => $fechaCaducidad->format('Y-m-d'),
             'idpropietario' => $propietario->id, 
         ]);
 
