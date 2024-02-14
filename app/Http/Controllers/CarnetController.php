@@ -22,7 +22,7 @@ class CarnetController extends Controller
         
             $propietario = Propietario::where('dni', $request->dni)->first();
             
-            $fechaEmision = Carbon::createFromFormat('Y/m/d', $request->fechaEmision);
+            $fechaEmision = Carbon::createFromFormat('Y-m-d', $request->fechaEmision);
             $fechaCaducidad = $fechaEmision->copy()->addMonths(6);
     
             $carnet = CarnetModel::create([
@@ -34,8 +34,8 @@ class CarnetController extends Controller
                 'ancho'=> $request->ancho,
                 'nroMesa'=> $request->nroMesa,//cambiar a nroMesa
                 'categoria'=> $request->categoria,
-                'fechaEmision' => $fechaEmision->format('Y/m/d'),
-                'fechaCaducidad' => $fechaCaducidad->format('Y/m/d'),
+                'fechaEmision' => $fechaEmision->format('Y-m-d'),
+                'fechaCaducidad' => $fechaCaducidad->format('Y-m-d'),
             ]);
     
             if (($request->hasFile('fotoVendedor') && count($request->file('fotoVendedor')) > 0) || ($request->hasFile('anexosAdjuntos') && count($request->file('anexosAdjuntos')) > 0)) {

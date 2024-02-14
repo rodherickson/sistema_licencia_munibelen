@@ -9,21 +9,37 @@ use Illuminate\Support\Facades\Http;
 class PersonaController extends Controller
 {
     public static function searchDni($dni)
-    {
-        if(strlen($dni) != 8 || !is_numeric($dni)){
-            return response()->json(['succes'=>false, 'message'=>'El número ingresado no es valido.']);
-        }
-        
-        $apiUrl = 'https://dniruc.apisperu.com/api/v1/dni/'.$dni;
-        $tokens = json_decode(file_get_contents(base_path('app/VisitasToken.json')), true);
-        $response = self::curlOperations($tokens, $apiUrl);
-        
-        if(!$response){
-            return response()->json(['success' =>false, 'message'=>'Servicio no disponible en este momento.']);  
-        }
+{
+    if(strlen($dni) != 8 || !is_numeric($dni)){
+        return response()->json(['success' => false, 'message' => 'El número ingresado no es válido.']);
+    }
+    
+    $apiUrl = 'https://dniruc.apisperu.com/api/v1/dni/'.$dni;
+    $tokens = json_decode(file_get_contents(base_path('app/VisitasToken.json')), true);
+    $response = self::curlOperations($tokens, $apiUrl);
+    $persona = json_decode($response);
 
-        return response()->json([json_decode($response, true)]);
-    }   
+    if(!$response){
+        return response()->json(['success' => false, 'message' => 'Servicio no disponible en este momento.']);  
+    }
+
+    // Verificar si la solicitud fue exitosa
+    if(isset($persona->dni)) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Datos obtenidos correctamente',
+            'persona' => [
+                'dni' => $persona->dni,
+                'nombres' => $persona->nombres,
+                'apellidoPaterno' => $persona->apellidoPaterno,
+                'apellidoMaterno' => $persona->apellidoMaterno
+            ]
+        ]);
+    } else {
+        return response()->json(['success' => false, 'message' => 'No se pudo obtener la información del DNI.']);  
+    }
+}
+
 
     protected static function curlOperations($arrayTokens, $datum)
     {
@@ -83,21 +99,26 @@ class PersonaController extends Controller
     
         // Verificar si la solicitud fue exitosa
         if(isset($responseData['ruc'])) {
-            $ruc = $responseData['ruc'];
+            $personaRuc = $responseData['ruc'];
             $razonSocial = $responseData['razonSocial'];
             $direccion = $responseData['direccion'];
     
             // Aquí puedes hacer lo que desees con los datos obtenidos
             return response()->json([
                 'success' => true,
-                'ruc' => $ruc,
-                'razonSocial' => $razonSocial,
-                'direccion' => $direccion
+                'message' => 'Datos obtenidos correctamente',
+                'persona' => [
+                    'ruc' => $personaRuc,
+                    'razonSocial' => $razonSocial,
+                    'direccion' => $direccion
+                ]
             ]);
-        } else {
+        } 
+        else {
             return response()->json(['status'=>'error', 'message'=>'No se pudo obtener la información del RUC.']);  
         }
-    }  
+    }
+    
     
 
     

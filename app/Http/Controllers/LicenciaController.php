@@ -47,7 +47,7 @@ class LicenciaController extends Controller
             ]);
         }
 
-        $fechaEmision = Carbon::createFromFormat('Y/m/d', $request->fechaEmision);
+        $fechaEmision = Carbon::createFromFormat('Y-m-d', $request->fechaEmision);
         $fechaCaducidad = $fechaEmision->copy()->addMonths(12);
 
         $licencia = LicenciaModel::create([
@@ -61,8 +61,8 @@ class LicenciaController extends Controller
             'area' => $request->area,
             'inspector' => $request->inspector,
             'aforo' => $request->aforo,
-            'fechaEmision' => $fechaEmision->format('Y/m/d'),
-            'fechaCaducidad' => $fechaCaducidad->format('Y/m/d'),
+            'fechaEmision' => $fechaEmision->format('Y-m-d'),
+            'fechaCaducidad' => $fechaCaducidad->format('Y-m-d'),
         ]);
 
        
@@ -129,6 +129,7 @@ class LicenciaController extends Controller
                 'p.apellidos',
                 'cf.path_file as foto',
                 'p.direccion',
+                'p.distrito',
                 'li.id as id_licencia',
                 'ra.razonSocial',
                 'idrazonsocial as id_razonSocial',
@@ -157,6 +158,7 @@ class LicenciaController extends Controller
             'apellidos' => $consulta[0]->apellidos,
             'foto' => $consulta[0]->foto,
             'direccion' => $consulta[0]->direccion,
+            'distrito' => $consulta[0]->distrito,
             'establecimientos' => []
         ];
 
@@ -216,28 +218,36 @@ class LicenciaController extends Controller
 
     }
 
-    public function expedirLicencia($id){
+    public function expedirLicencia($id)
+{
+    try {
+        $licencia = DB::table('licencia as li')
+            ->select('li.id', 'ra.razonSocial', 'ru.nombre_rubro as nombreRubro', 'nom.nombreComercial', 'li.area', 'li.direccionEstablecimiento','p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision','li.fechaCaducidad as vigencia')
+            ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
+            ->join('nombrescomerciales as nom', 'nom.id', '=', 'li.idnombreComercial')
+            ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
+            ->join('propietario as p', 'p.id', '=', 'li.idpropietario')
+            ->where('li.idnombreComercial', $id)
+            ->first();
 
-        try {
-            $licencia = DB::table('licencia as li')
-                ->select('li.id', 'ra.razonSocial', 'ru.nombreRubro', 'nom.nombreComercial ', 'li.area', 'li.direccionEstablecimiento', 'li.fechaCaducidad as vigencia', 'p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision')
-                ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
-                ->join('nombrescomerciales as nom', 'nom.id', '=', 'li.idnombreComercial')
-                ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
-                ->join('propietario as p', 'p.id', '=', 'li.idpropietario')
-                ->where('li.idnombreComercial', $id)
-                ->first();
-    
-            if ($licencia) {
-                return response()->json(['success' => true,
+        if ($licencia) {
+            return response()->json([
+                'success' => true,
                 'message' => 'Datos obtenidos correctamente',
-                'carnet' => $licencia]);
-            } else {
-                return response()->json(['success'=>false,'message' => 'Licencia no encontrada'], 404);
-            }
-        } catch (\Exception $e) {
-            
-            return response()->json(['success'=>false,'message' => 'Se produjo un error al expedir la licencia.'], 500);
+                'carnet' => $licencia
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Licencia no encontrada'
+            ], 404);
         }
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Se produjo un error al expedir la licencia.'
+        ], 500);
     }
+}
+
 }
