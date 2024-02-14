@@ -34,8 +34,8 @@ class ConstanciaController extends Controller
         $respuesta = [
             'idconstancia' => $constanciaId,
             'idpropietario' => $propietario->id,
-            'fechaEmision' => $fechaEmision->format('Y/m/d'),
-            'fechaCaducidad' => $fechaCaducidad->format('Y/m/d'),
+            'fechaEmision' => $fechaEmision->format('Y-m-d'),
+            'fechaCaducidad' => $fechaCaducidad->format('Y-m-d'),
         ];
 
         return response()->json([
