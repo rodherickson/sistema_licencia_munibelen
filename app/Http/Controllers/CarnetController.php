@@ -144,9 +144,9 @@ class CarnetController extends Controller
                 'success' => true,
                 'message' => 'Carnet obtenidos con éxito',
                 'carnet' => $carnet->items(),
-                'current_page' => $carnet->currentPage(),
-                'total_pages' => $carnet->lastPage(),
-                'per_page' => $carnet->perPage(),
+                'currentPage' => $carnet->currentPage(),
+                'totalPages' => $carnet->lastPage(),
+                'perPage' => $carnet->perPage(),
                 'total' => $carnet->total(),
             ]);
         } catch (\Exception $e) {
