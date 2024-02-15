@@ -41,12 +41,6 @@ class CarnetRequest extends FormRequest
             'ancho' => 'required|numeric',
             'nroMesa' => 'required|numeric',
             'categoria' => 'required|string',
-            'fotoVendedor.*' => [
-                'required',
-                'mimes:jpg,jpeg,png,gif',
-                'min:1',
-                new ImageValidation,
-            ],
             'anexosAdjuntos.*' => [
                 'required',
                 'mimes:doc,docx,pdf',
