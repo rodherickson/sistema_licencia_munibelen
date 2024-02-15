@@ -116,37 +116,35 @@ class LicenciaController extends Controller
             return response()->json(['success'=>false,'message' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
         }
         $consulta = DB::table('propietario as p')
-            // ->join('carnet as c', 'p.id', '=', 'c.idpropietario')
-            ->join('propietario_files as pf', 'p.id', '=', 'pf.id_propietario_files')
-            ->join('licencia as li', 'p.id', '=', 'li.idpropietario')
-            ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
-            ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
-            ->join('nombrescomerciales as no', 'no.id', '=', 'li.idnombreComercial')
-            ->select(
-                'p.id as id_propietario',
-                'p.dni',
-                'p.nombre',
-                'p.apellidos',
-                'pf.path_file as foto',
-                'p.direccion',
-                'p.distrito',
-                'li.id as id_licencia',
-                'ra.razonSocial',
-                'idrazonsocial as id_razonSocial',
-                'no.nombreComercial',
-                'li.idnombreComercial as id_nombreComercial',
-                'li.ruc',
-                'li.direccionEstablecimiento as direccion del Establecimiento',
-                'li.area',
-                'ru.id as id_rubro',
-                'ru.nombre_rubro as rubro',
-                'li.aforo',
-                'li.fechaEmision',
-                'li.vigencia'
-            )
-            ->where('p.dni', $dni)
-            ->whereRaw("(pf.path_file LIKE '%.jpg' OR pf.path_file LIKE '%.jpeg' OR pf.path_file LIKE '%.png')")
-            ->get();
+        ->leftJoin('propietario_files AS pf', 'pf.id_propietario_files', '=', 'p.id')
+        ->join('licencia as li', 'p.id', '=', 'li.idpropietario')
+        ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
+        ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
+        ->join('nombrescomerciales as no', 'no.id', '=', 'li.idnombreComercial')
+        ->select(
+            'p.id as id_propietario',
+            'p.dni',
+            'p.nombre',
+            'p.apellidos',
+            'pf.path_file as foto', // Aquí es donde obtienes la foto, si existe
+            'p.direccion',
+            'p.distrito',
+            'li.id as id_licencia',
+            'ra.razonSocial',
+            'idrazonsocial as id_razonSocial',
+            'no.nombreComercial',
+            'li.idnombreComercial as id_nombreComercial',
+            'li.ruc',
+            'li.direccionEstablecimiento as direccion del Establecimiento',
+            'li.area',
+            'ru.id as id_rubro',
+            'ru.nombre_rubro as rubro',
+            'li.aforo',
+            'li.fechaEmision',
+            'li.vigencia'
+        )
+        ->where('p.dni', $dni)
+        ->get();
 
         if ($consulta->isEmpty()) {
             return response()->json(['success' => false, 'message' => 'No se encontraron datos para el ID proporcionado.'], 404);
