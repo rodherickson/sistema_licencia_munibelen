@@ -1,10 +1,13 @@
 <?php
 
 namespace App\Http\Requests;
+
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
+use App\Rules\ImageValidation;
 
 class Propietario extends FormRequest
 {
@@ -39,6 +42,12 @@ class Propietario extends FormRequest
             'correo' => 'required|email|min:2|max:255',
             'direccion' => 'required|string|min:2|max:255',
             'distrito' => 'required|string|min:2|max:255',
+            'fotoVendedor.*' => [
+                'required',
+                'mimes:jpg,jpeg,png,gif',
+                'min:1',
+                new ImageValidation,
+            ],
         ];
     }
 

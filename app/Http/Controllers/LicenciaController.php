@@ -116,8 +116,8 @@ class LicenciaController extends Controller
             return response()->json(['success'=>false,'message' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
         }
         $consulta = DB::table('propietario as p')
-            ->join('carnet as c', 'p.id', '=', 'c.idpropietario')
-            ->join('carnet_files as cf', 'c.id', '=', 'cf.id_carnet_files')
+            // ->join('carnet as c', 'p.id', '=', 'c.idpropietario')
+            ->join('propietario_files as pf', 'p.id', '=', 'pf.id_propietario_files')
             ->join('licencia as li', 'p.id', '=', 'li.idpropietario')
             ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
             ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
@@ -127,7 +127,7 @@ class LicenciaController extends Controller
                 'p.dni',
                 'p.nombre',
                 'p.apellidos',
-                'cf.path_file as foto',
+                'pf.path_file as foto',
                 'p.direccion',
                 'p.distrito',
                 'li.id as id_licencia',
@@ -145,7 +145,7 @@ class LicenciaController extends Controller
                 'li.vigencia'
             )
             ->where('p.dni', $dni)
-            ->whereRaw("(cf.path_file LIKE '%.jpg' OR cf.path_file LIKE '%.jpeg' OR cf.path_file LIKE '%.png')")
+            ->whereRaw("(pf.path_file LIKE '%.jpg' OR pf.path_file LIKE '%.jpeg' OR pf.path_file LIKE '%.png')")
             ->get();
 
         if ($consulta->isEmpty()) {
