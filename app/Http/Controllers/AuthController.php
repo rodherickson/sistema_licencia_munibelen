@@ -1,18 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 use App\Http\Controllers\Controller;
-
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
-
 use App\Services\GenerateTokens;
 use Generator;
 
@@ -20,7 +17,7 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login','register']]);
     }
     
 
@@ -32,7 +29,7 @@ class AuthController extends Controller
         $user = User::verifyCredentials($request->email, $request->password);
         if (!$user) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Credenciales incorrectas!Vuelva a intentar'
             ], 401);
         }
@@ -44,7 +41,7 @@ class AuthController extends Controller
             // Agrega más campos según sea necesario
         ];
         return response()->json([
-            'status' => 'success',
+            'success' =>true,
             'message' => 'Usuario Autentificado',
             'token' => GenerateTokens::token($user),
             'user' =>[
@@ -54,6 +51,23 @@ class AuthController extends Controller
             ]
 
         ], 200);
+    }
+
+
+    public function logout()
+    {
+        try{
+            Auth::guard('api')->logout();
+            return response()->json(['success'=>true,'message' => 'Successfully logged out']);
+
+        } catch(\Exception $e){
+            return response()->json(['success'=> false, 'message'=> 'Error'], 500);
+        }
+
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Successfully logged out',
+        // ]);
     }
 
     public function refresh()

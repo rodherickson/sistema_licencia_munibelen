@@ -43,7 +43,7 @@ class LicenciaRequest extends FormRequest
             'distritoEstablecimiento' => 'required|string|max:255',
             'area' => 'required|numeric',
             'aforo' => 'required|numeric',
-            'vigencia' => 'required|numeric',
+            'vigencia' => 'required|string',
             'inspector' => 'required|string|max:255',
             'anexosAdjuntos.*' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png,gif',
         ];
@@ -61,7 +61,7 @@ class LicenciaRequest extends FormRequest
             'area.required' => 'Debe ingresar una longitud de area :(',
             'inspector.required' => 'Debe ingresar inspector :(',
             'vigencia.required' => 'Debe ingresar el dato de vigencia :(',
-            'vigencia.numeric' => 'Debe ingresar un dato numerico en el campo vigencia :(',
+            'vigencia.string' => 'Debe ingresar un dato valido en el campo vigencia :(',
             'area.numeric' => 'Debe ingresar una cantidad numerica en el campo area :(',
             'aforo.required' => 'Debe ingresar un numero de aforo :(',
             'aforo.numeric' => 'Debe ingresar una cantidad numerica en el campo aforo :(',

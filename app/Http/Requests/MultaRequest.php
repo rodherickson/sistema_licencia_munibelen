@@ -39,7 +39,7 @@ class MultaRequest extends FormRequest
             
             'idtipo_multa' => 'required|numeric',
             'idarea' => 'required|numeric',
-            'files.*' => 'required|mimes:doc,docx,pdf',
+            'anexosAdjuntos.*' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png,gif',
         ];
     }
 
@@ -50,8 +50,8 @@ class MultaRequest extends FormRequest
             
             'idtipo_multa.required' => 'Debe ingresar un tipo multa :(',
             'idarea_multa.required' => 'Debe ingresar un area :(',
-            'files.*.required' => 'Debe subir por lo menos un archivo',
-            'files.*.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
+            'anexosAdjuntos.required' => 'Debe subir por lo menos un archivo',
+            'anexosAdjuntos.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
             'expiredate.required' => 'Debe ingresar una fecha :(',
         ];
     }
