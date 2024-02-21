@@ -10,7 +10,7 @@ use App\Models\MultaModel;
 use App\Models\Detalle_MultaModel;
 use App\Http\Requests\MultaRequest;
 use App\Models\LicenciaModel;
-
+use Illuminate\Support\Carbon;
 
 class MultaController extends Controller
 {
@@ -19,20 +19,24 @@ class MultaController extends Controller
             try {
                 DB::beginTransaction();
                 
-                $licencia = LicenciaModel::where('nombreempresa', $request->nombreempresa)
-                ->where('denominacion_local', $request->denominacion_local)
-                ->first();
-
+                $licencia = LicenciaModel::where('idnombrecomercial', $request->idnombrecomercial)
+                    ->where('idrazonsocial', $request->idrazonsocial)
+                    ->first();
+                
                 if (!$licencia) {
-                    throw new \Exception('Nombre de la empresa no fue encontrada.');
+                    throw new \Exception('La licencia no fue encontrada.');
                 }
+                
+                $fecha = Carbon::createFromFormat('Y-m-d', $request->fecha);
+                $expiredate = $fecha->copy()->addWeekdays(6);                
 
                 $multa = MultaModel::create([
                     'idlicencia' => $licencia->id,
-                    'idtipo_multa'=> $request->idtipo_multa,
-                    'idarea'=> $request->idarea,
-                    'expiredate'=> $request->expiredate,
+                    'idtipo_multa' => $request->idtipo_multa,
+                    'idarea' => $request->idarea,
+                    'expiredate' => $expiredate->format('Y-m-d'),
                 ]);
+                
                 
                 // $fecha_emision = Carbon::createFromFormat('Y/m/d', date('Y/m/d'));
                 // $fecha_caducidad = $fecha_emision->addMonths(6)->format('Y/m/d');
@@ -47,9 +51,9 @@ class MultaController extends Controller
 
                 
 
-                if ($request->hasFile('files') && count($request->file('files')) > 0)  {
-                    $archivo=$request->file('files');
-                    foreach ($request->file('files') as $file) {
+                if ($request->hasFile('anexosAdjuntos') && count($request->file('anexosAdjuntos')) > 0)  {
+                    $archivo=$request->file('anexosAdjuntos');
+                    foreach ($request->file('anexosAdjuntos') as $file) {
                         $filename = $file->getClientOriginalName();
                         $extension = $file->getClientOriginalExtension();
                         $uniqueName = date('YmdHis') . rand(10,99);
@@ -75,13 +79,14 @@ class MultaController extends Controller
             DB::commit();
     
                 return response()->json([
-                    'message' => 'Datos guardados',
+                    'success'=>true,
+                    'message' => 'Datos guardados correctamente',
                 ], 200);
                 
             } catch (\Throwable $e){
                 DB::rollBack();
                 return response()->json([
-                    'status' =>'error',
+                    'success' =>false,
                     'message' =>$e->getMessage()
                 ], 500);
             }

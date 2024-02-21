@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Validator;
 class CarnetController extends Controller
 {
 
+   
+
     public function register(CarnetRequest $request)
     {
         try {

@@ -24,20 +24,23 @@ use App\Http\Controllers\ConstanciaController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
-Route::get('/rubro', [Rubro::class, 'listRubro']);
-Route::get('/persona/{dni}',[PersonaController::class,'searchDni']);
-Route::get('/persona/ruc/{ruc}',[PersonaController::class,'searchRuc']);
-Route::post('/propietario', [Propietario::class, 'register']);
-Route::get('/propietario/{dni}', [Propietario::class, 'mostrarpropietario']);
-Route::post('/carnet', [CarnetController::class, 'register']);
-Route::get('/carnet', [CarnetController::class, 'listcarnet']);
-Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
-Route::get('/carnet/expedir/{dni}',[CarnetController::class, 'expedirCarnet']);
-Route::post('/multa', [MultaController::class, 'registerMulta']);
-Route::post('/licencia', [LicenciaController::class, 'register']);
-Route::get('/licencia/{dni}', [LicenciaController::class, 'obtnerlicencia']);
-Route::get('/licencia/expedir/{id}', [LicenciaController::class, 'expedirLicencia']);
-Route::post('/constancia/expedir', [ConstanciaController::class, 'expedirConstancia']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth')->group(function () {
 
+    Route::get('/rubro', [Rubro::class, 'listRubro']);
+    Route::get('/persona/{dni}',[PersonaController::class,'searchDni']);
+    Route::get('/persona/ruc/{ruc}',[PersonaController::class,'searchRuc']);
+    Route::post('/propietario', [Propietario::class, 'register']);
+    Route::get('/propietario/{dni}', [Propietario::class, 'mostrarpropietario']);
+    Route::post('/carnet', [CarnetController::class, 'register']);
+    Route::get('/carnet', [CarnetController::class, 'listcarnet']);
+    Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
+    Route::get('/carnet/expedir/{dni}',[CarnetController::class, 'expedirCarnet']);
+    Route::post('/multa', [MultaController::class, 'registerMulta']);
+    Route::post('/licencia', [LicenciaController::class, 'register']);
+    Route::get('/licencia/{dni}', [LicenciaController::class, 'obtnerlicencia']);
+    Route::get('/licencia/expedir/{id}', [LicenciaController::class, 'expedirLicencia']);
+    Route::post('/constancia/expedir', [ConstanciaController::class, 'expedirConstancia']);
+});
