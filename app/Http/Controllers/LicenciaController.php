@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Models\Propietario;
 use App\Models\NombrecomercialModel;
 use App\Models\RazonesocialesModel;
+use Illuminate\Validation\ValidationException;
 
 class LicenciaController extends Controller
 {
@@ -91,20 +92,25 @@ class LicenciaController extends Controller
         
     }
 
-        DB::commit();
+    DB::commit();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Datos guardados',
-        ], 200);
-    } catch (\Throwable $e) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            // 'status' => 'error al guardar los datos',
-            'message' => $e->getMessage()
-        ], 500);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Datos guardados',
+    ], 200);
+} catch (ValidationException $e) {
+    DB::rollBack();
+    return response()->json([
+        'success' => false,
+        'message' => 'Ya existe un registro con esta razón social o nombre comercial.'
+    ], 422);
+} catch (\Throwable $e) {
+    DB::rollBack();
+    return response()->json([
+        'success' => false,
+        'message' => 'Se produjo un error al guardar los datos.'
+    ], 500);
+}
 }
 
     //areglar crear tabla 
@@ -217,35 +223,36 @@ class LicenciaController extends Controller
     }
 
     public function expedirLicencia($id)
-{
-    try {
-        $licencia = DB::table('licencia as li')
-            ->select('li.id', 'ra.razonSocial', 'ru.nombre_rubro as nombreRubro', 'nom.nombreComercial', 'li.area', 'li.aforo','li.direccionEstablecimiento','p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision','li.vigencia as vigencia')
-            ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
-            ->join('nombrescomerciales as nom', 'nom.id', '=', 'li.idnombreComercial')
-            ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
-            ->join('propietario as p', 'p.id', '=', 'li.idpropietario')
-            ->where('li.idnombreComercial', $id)
-            ->first();
-
-        if ($licencia) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Datos obtenidos correctamente',
-                'licencia' => $licencia
-            ]);
-        } else {
+    {
+        try {
+            $licencia = DB::table('licencia as li')
+                ->select('li.id', 'ra.razonSocial', 'ru.nombre_rubro as nombreRubro', 'nom.nombreComercial', 'li.area', 'li.aforo','li.direccionEstablecimiento','p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision','li.vigencia as vigencia')
+                ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
+                ->join('nombrescomerciales as nom', 'nom.id', '=', 'li.idnombreComercial')
+                ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
+                ->join('propietario as p', 'p.id', '=', 'li.idpropietario')
+                ->where('li.idnombreComercial', $id)
+                ->first();
+    
+            if ($licencia) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Datos obtenidos correctamente',
+                    'licencia' => $licencia
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Licencia no encontrada'
+                ], 404);
+            }
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Licencia no encontrada'
-            ], 404);
+                'message' => 'Se produjo un error al expedir la licencia.'
+            ], 500);
         }
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Se produjo un error al expedir la licencia.'
-        ], 500);
     }
-}
+    
 
 }

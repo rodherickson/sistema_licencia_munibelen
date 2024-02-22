@@ -194,4 +194,47 @@ class CarnetController extends Controller
             return response()->json(['success' => false, 'message' => 'Se produjo un error al obtener el carnet. '], 500);
         }
     }
+
+
+    public function obtenerReportePadronVendedores()
+    {
+        // Realizar la consulta utilizando Eloquent o Query Builder
+        $carnet = DB::table('carnet AS c')
+            ->select('prop.id', 'prop.nombre', 'prop.apellidos', 'prop.dni', 'rub.nombre_rubro', 'prop.direccion', 'c.estado', 'prop.distrito', 'c.fechaEmision', 'c.lugarEstablecimiento')
+            ->join('propietario AS prop', 'prop.id', '=', 'c.idpropietario')
+            ->join('rubro AS rub', 'rub.id', '=', 'c.idrubro')
+            ->get();
+    
+        // Organizar los resultados en la estructura deseada
+        $reportePadronVendedores = [];
+    
+        foreach ($carnet as $resultado) {
+            $lugarEstablecimiento = $resultado->lugarEstablecimiento;
+    
+            // Verificar si ya existe el lugarEstablecimiento en el array
+            if (!isset($reportePadronVendedores[$lugarEstablecimiento])) {
+                $reportePadronVendedores[$lugarEstablecimiento] = ['lugarEstablecimiento' => $lugarEstablecimiento, 'vendedores' => []];
+            }
+    
+            // Agregar los datos del vendedor al lugarEstablecimiento correspondiente
+            $reportePadronVendedores[$lugarEstablecimiento]['vendedores'][] = [
+                'nro' => count($reportePadronVendedores[$lugarEstablecimiento]['vendedores']) + 1,
+                'nombre' => $resultado->nombre,
+                'apellidos' => $resultado->apellidos,
+                'dni' => $resultado->dni,
+                'rubro' => $resultado->nombre_rubro,
+                'direccion' => $resultado->direccion,
+                'condicion' => $resultado->estado,
+                'distrito' => $resultado->distrito,
+            ];
+        }
+    
+        // Devolver los datos en formato JSON
+        return response()->json([
+            'success' => true,
+            'message' => 'Datos obtenidos correctamente',
+            'reportePadronVendedores' => array_values($reportePadronVendedores)
+        ]);
+    }
+
 }

@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class NombrecomercialModel extends Model
 {
+    use HasFactory;
     protected $table = 'nombrescomerciales';
     public $timestamps = false;
-    protected $fillable = ['nombreComercial']; // Solo necesitas tener el campo 'nombreComercial' aquí
+    protected $fillable = ['nombreComercial']; 
 
-    use HasFactory;
+   
+
 }
 

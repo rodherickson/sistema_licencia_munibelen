@@ -21,8 +21,8 @@ class MultaRequest extends FormRequest
     protected function failedValidation(Validator $validator)
     {
      $jsonResponse=new JsonResponse([
-        'status'=>'error',
-        'messsage'=>messageValidation($validator)
+        'success'=>false,
+        'message'=>messageValidation($validator)
      ],422);
      throw new HttpResponseException($jsonResponse);   
     } 
@@ -37,8 +37,7 @@ class MultaRequest extends FormRequest
     {
         return [
             
-            'idtipo_multa' => 'required|numeric',
-            'idarea' => 'required|numeric',
+            'idtipoMulta' => 'required|numeric',
             'anexosAdjuntos.*' => 'required|mimes:doc,docx,pdf,jpg,jpeg,png,gif',
         ];
     }
@@ -49,7 +48,6 @@ class MultaRequest extends FormRequest
         return[
             
             'idtipo_multa.required' => 'Debe ingresar un tipo multa :(',
-            'idarea_multa.required' => 'Debe ingresar un area :(',
             'anexosAdjuntos.required' => 'Debe subir por lo menos un archivo',
             'anexosAdjuntos.mimes' => 'Formato no permitido. Solo se acepta  tipo: doc,docx,pdf,jpg,img,jfif,webp,jpeg',
             'expiredate.required' => 'Debe ingresar una fecha :(',
