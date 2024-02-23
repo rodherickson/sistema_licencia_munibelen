@@ -12,7 +12,7 @@ class MultaModel extends Model
     public $timestamps = false;
     protected $fillable = 
     ['idlicencia', 
-    'idtipo_multa', 'idarea', 
+    'idtipoMulta',
     'expiredate'];
 
  

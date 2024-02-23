@@ -21,8 +21,8 @@ class LicenciaRequest extends FormRequest
     protected function failedValidation(Validator $validator)
     {
      $jsonResponse=new JsonResponse([
-        'status'=>'error',
-        'messsage'=>messageValidation($validator)
+        'success'=>false,
+        'message'=>messageValidation($validator)
      ],422);
      throw new HttpResponseException($jsonResponse);   
     } 
@@ -37,7 +37,7 @@ class LicenciaRequest extends FormRequest
         return [
            
             'razonSocial' => 'required|string|max:255',
-            'nombreComercial' => 'required|string|max:255',
+            'nombreComercial' => 'required|string|max:255|unique:nombrescomerciales,nombreComercial',
             'ruc' => 'required|numeric',
             'direccionEstablecimiento' => 'required|string|max:255',
             'distritoEstablecimiento' => 'required|string|max:255',
@@ -56,6 +56,7 @@ class LicenciaRequest extends FormRequest
             'ruc.required' => 'Debe ingresar Su ruc :(',
             'ruc.numeric' => 'Debe ingresar datos numericos en el campo ruc :(',
             'nombreComercial.required' => 'Debe ingresar una nombre Comercial :(',
+            'nombreComercial.unique' => 'El nombre Comercial ya existe :(',
             'direccionEstablecimiento.required' => 'Debe ingresar Dirección Del Establecimiento :(',
             'distritoEstablecimiento.required' => 'Debe ingresar Distrito Del Establecimiento :(',
             'area.required' => 'Debe ingresar una longitud de area :(',

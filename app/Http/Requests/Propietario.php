@@ -22,8 +22,8 @@ class Propietario extends FormRequest
     protected function failedValidation(Validator $validator)
     {
      $jsonResponse=new JsonResponse([
-        'status'=>'error',
-        'messsage'=>messageValidation($validator)
+        'success'=>false,
+        'message'=>messageValidation($validator)
      ],422);
      throw new HttpResponseException($jsonResponse);   
     }  

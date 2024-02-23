@@ -20,11 +20,10 @@ class MultaController extends Controller
                 DB::beginTransaction();
                 
                 $licencia = LicenciaModel::where('idnombrecomercial', $request->idnombrecomercial)
-                    ->where('idrazonsocial', $request->idrazonsocial)
                     ->first();
                 
                 if (!$licencia) {
-                    throw new \Exception('La licencia no fue encontrada.');
+                    throw new \Exception('el nombre comercial no fue encontrada.');
                 }
                 
                 $fecha = Carbon::createFromFormat('Y-m-d', $request->fecha);
@@ -32,8 +31,7 @@ class MultaController extends Controller
 
                 $multa = MultaModel::create([
                     'idlicencia' => $licencia->id,
-                    'idtipo_multa' => $request->idtipo_multa,
-                    'idarea' => $request->idarea,
+                    'idtipoMulta' => $request->idtipoMulta,
                     'expiredate' => $expiredate->format('Y-m-d'),
                 ]);
                 

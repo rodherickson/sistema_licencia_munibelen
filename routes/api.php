@@ -36,11 +36,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/propietario/{dni}', [Propietario::class, 'mostrarpropietario']);
     Route::post('/carnet', [CarnetController::class, 'register']);
     Route::get('/carnet', [CarnetController::class, 'listcarnet']);
+    Route::get('/carnet/padron/vendedores', [CarnetController::class, 'obtenerReportePadronVendedores']);
     Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
     Route::get('/carnet/expedir/{dni}',[CarnetController::class, 'expedirCarnet']);
     Route::post('/multa', [MultaController::class, 'registerMulta']);
-    Route::post('/licencia', [LicenciaController::class, 'register']);
     Route::get('/licencia/{dni}', [LicenciaController::class, 'obtnerlicencia']);
     Route::get('/licencia/expedir/{id}', [LicenciaController::class, 'expedirLicencia']);
+    Route::post('/licencia', [LicenciaController::class, 'register']);
     Route::post('/constancia/expedir', [ConstanciaController::class, 'expedirConstancia']);
 });
+
+
