@@ -63,7 +63,7 @@ class MultaController extends Controller
                             'public'
                         );
                         $id = $detallemulta->id;
-                        Multa_files::saveFiles($detallemulta->id,$filename, $uniqueName, $extension, $path );
+                        Multa_files::saveFiles($detallemulta->id,$filename, $uniqueName, $extension, $path,auth()->user()->id );
                     }
                 }
                 else {
@@ -92,6 +92,48 @@ class MultaController extends Controller
     
     }
 
+
+    public function updateMulta(Request $request, $idMulta) {
+        try {
+            DB::beginTransaction();
+            
+            // Encuentra la multa que se va a actualizar
+            $multa = MultaModel::findOrFail($idMulta);
+            
+            // Guarda los archivos adjuntos si se proporcionan en la solicitud
+            if ($request->hasFile('anexosAdjuntos') && count($request->file('anexosAdjuntos')) > 0)  {
+                foreach ($request->file('anexosAdjuntos') as $file) {
+                    $filename = $file->getClientOriginalName();
+                    $extension = $file->getClientOriginalExtension();
+                    $uniqueName = date('YmdHis') . rand(10,99);
+    
+                    $path = $file->storeAs(
+                        'multa/' . date('Y/m'),
+                        $uniqueName . '.' . $extension,
+                        'public'
+                    );
+                    
+                    // Guarda los detalles del archivo adjunto junto con el ID de la multa
+                    Multa_files::saveFiles($multa->id, $filename, $uniqueName, $extension, $path,auth()->user()->id);
+                }
+            }
+            
+            DB::commit();
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Archivos adjuntos de la multa actualizados correctamente',
+            ], 200);
+        } catch (\Throwable $e){
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    
    
      
 }

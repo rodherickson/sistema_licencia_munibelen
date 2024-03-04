@@ -10,6 +10,7 @@ use App\Http\Controllers\LicenciaController;
 use App\Http\Controllers\MultaController;
 use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\ConstanciaController;
+use App\Http\Controllers\TipoMultaController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -27,23 +28,26 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth')->group(function () {
 
-    Route::get('/rubro', [Rubro::class, 'listRubro']);
-    Route::get('/persona/{dni}',[PersonaController::class,'searchDni']);
-    Route::get('/persona/ruc/{ruc}',[PersonaController::class,'searchRuc']);
-    Route::post('/propietario', [Propietario::class, 'register']);
-    Route::get('/propietario/{dni}', [Propietario::class, 'mostrarpropietario']);
-    Route::post('/carnet', [CarnetController::class, 'register']);
-    Route::get('/carnet', [CarnetController::class, 'listcarnet']);
-    Route::get('/carnet/padron/vendedores', [CarnetController::class, 'obtenerReportePadronVendedores']);
-    Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
-    Route::get('/carnet/expedir/{dni}',[CarnetController::class, 'expedirCarnet']);
-    Route::post('/multa', [MultaController::class, 'registerMulta']);
-    Route::get('/licencia/{dni}', [LicenciaController::class, 'obtnerlicencia']);
-    Route::get('/licencia/expedir/{id}', [LicenciaController::class, 'expedirLicencia']);
-    Route::post('/licencia', [LicenciaController::class, 'register']);
-    Route::post('/constancia/expedir', [ConstanciaController::class, 'expedirConstancia']);
+Route::middleware('auth')->group(function () {
+Route::get('/rubro', [Rubro::class, 'listRubro']);
+Route::get('/persona/dni/{dni}',[PersonaController::class,'searchDni']);
+Route::get('/persona/ruc/{ruc}',[PersonaController::class,'searchRuc']);  
+Route::get('/propietario/{dni}', [Propietario::class, 'mostrarpropietario']);
+Route::post('/multa', [MultaController::class, 'registerMulta']);
+Route::post('/multa/{idmulta}', [MultaController::class, 'updateMulta']);
+Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
+Route::get('/carnet', [CarnetController::class, 'listcarnet']);
+Route::post('/propietario', [Propietario::class, 'register']);
+Route::post('/carnet', [CarnetController::class, 'register']);
+Route::get('/carnetes', [CarnetController::class, 'contarCarnetsPorMeses']);
+Route::get('/carnet/padron/vendedores', [CarnetController::class, 'obtenerReportePadronVendedores']);
+Route::get('/multas', [TipoMultaController::class, 'listTipoMulta']);
+Route::post('/licencia', [LicenciaController::class, 'register']);
+Route::get('/licencia/{dni}', [LicenciaController::class, 'obtnerlicencia']);
+Route::get('/licencia/expedir/{id}', [LicenciaController::class, 'expedirLicencia']);
+Route::get('/carnet/expedir/{dni}',[CarnetController::class, 'expedirCarnet']);
+Route::post('/constancia/expedir', [ConstanciaController::class, 'expedirConstancia']);  
 });
 
 
