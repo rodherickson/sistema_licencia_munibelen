@@ -19,10 +19,11 @@ class Multa_files extends Model
         'unique_name',
         'type_file',
         'path_file',
-        'date_create'
+        'date_create',
+        'iduser'
     ];
 
-    public static function saveFiles($id, $filename, $unique_name, $extension, $path)
+    public static function saveFiles($id, $filename, $unique_name, $extension, $path,$userId)
     {
        Multa_files::create([
             'id_multade_files' => $id,
@@ -30,7 +31,8 @@ class Multa_files extends Model
             'unique_name' => $unique_name,
             'type_file' => $extension,
             'path_file' => $path,
-            'date_create' => date('Y-m-d')
+            'date_create' => date('Y-m-d'),
+            'iduser' => $userId,
         ]);
     }
 }

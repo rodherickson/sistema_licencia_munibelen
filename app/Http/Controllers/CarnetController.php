@@ -180,7 +180,10 @@ class CarnetController extends Controller
             }
 
             // Insertar el idcarnet en la tabla carnetexpedidos
-            DB::table('carnetexpedidos')->insert(['idcarnet' => $carnet->id]);
+            DB::table('carnetexpedidos')->insert([
+                'idcarnet' => $carnet->id,
+                'fecha' => DB::raw('NOW()')
+            ]);
 
             // Actualizar el estado del carnet a "Expedido"
             DB::table('carnet')->where('id', $carnet->id)->update(['estado' => 'Expedido']);
@@ -200,7 +203,7 @@ class CarnetController extends Controller
     {
         // Realizar la consulta utilizando Eloquent o Query Builder
         $carnet = DB::table('carnet AS c')
-            ->select('prop.id', 'prop.nombre', 'prop.apellidos', 'prop.dni', 'rub.nombre_rubro', 'prop.direccion', 'c.estado', 'prop.distrito', 'c.fechaEmision', 'c.lugarEstablecimiento')
+            ->select('c.id AS nro','prop.id', 'prop.nombre', 'prop.apellidos', 'prop.dni', 'rub.nombre_rubro', 'prop.direccion', 'c.estado', 'prop.distrito', 'c.fechaEmision', 'c.lugarEstablecimiento')
             ->join('propietario AS prop', 'prop.id', '=', 'c.idpropietario')
             ->join('rubro AS rub', 'rub.id', '=', 'c.idrubro')
             ->get();
@@ -218,7 +221,7 @@ class CarnetController extends Controller
     
             // Agregar los datos del vendedor al lugarEstablecimiento correspondiente
             $reportePadronVendedores[$lugarEstablecimiento]['vendedores'][] = [
-                'nro' => count($reportePadronVendedores[$lugarEstablecimiento]['vendedores']) + 1,
+                'nro' =>$resultado->nro,
                 'nombre' => $resultado->nombre,
                 'apellidos' => $resultado->apellidos,
                 'dni' => $resultado->dni,
@@ -237,4 +240,37 @@ class CarnetController extends Controller
         ]);
     }
 
+    public function contarCarnetsPorMeses()
+    {
+        // Establecer la configuración regional en español para obtener los nombres de los meses en español
+        DB::statement("SET lc_time_names = 'es_ES'");
+    
+        // Realizar la consulta utilizando DB::select() y SQL raw para obtener el conteo por meses
+        $conteoPorMeses = DB::select('
+            SELECT 
+                DATE_FORMAT(fechaEmision, "%Y-%m") AS mes_numero,
+                DATE_FORMAT(fechaEmision, "%M") AS mes_nombre,
+                COUNT(*) AS total
+            FROM 
+                carnet
+            WHERE
+                estado = "Expedido"
+            GROUP BY 
+                mes_numero, mes_nombre
+            ORDER BY 
+                mes_numero
+        ');
+    
+        // Convertir los resultados en un array asociativo para facilitar su uso en la gráfica
+        $carnets = [];
+        foreach ($conteoPorMeses as $row) {
+            $mes = $row->mes_nombre;
+            $total = $row->total;
+            $carnets[$mes] = $total;
+        }
+        return response()->json($carnets);
+    }
+    
+
+    
 }

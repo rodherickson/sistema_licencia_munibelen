@@ -13,7 +13,7 @@ class ConstanciaController extends Controller
     public function expedirConstancia(ConstanciaRequest $request)
 {
     try {
-        // Validar y procesar la solicitud
+
         $propietario = Propietario::where('dni', $request->dni)->first();
 
         if (!$propietario) {
@@ -29,6 +29,12 @@ class ConstanciaController extends Controller
             'fechaCaducidad' => $fechaCaducidad->format('Y-m-d'),
             'idpropietario' => $propietario->id, 
         ]);
+
+        DB::table('constanciaexpedidos')->insert([
+            'idconstancia' => $constanciaId,
+            'fecha' => DB::raw('NOW()')
+        ]);
+
 
         // Construir la respuesta con la información solicitada
         $respuesta = [

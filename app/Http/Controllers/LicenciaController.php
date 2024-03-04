@@ -223,36 +223,50 @@ class LicenciaController extends Controller
     }
 
     public function expedirLicencia($id)
-    {
-        try {
-            $licencia = DB::table('licencia as li')
-                ->select('li.id', 'ra.razonSocial', 'ru.nombre_rubro as nombreRubro', 'nom.nombreComercial', 'li.area', 'li.aforo','li.direccionEstablecimiento','p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision','li.vigencia as vigencia')
-                ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
-                ->join('nombrescomerciales as nom', 'nom.id', '=', 'li.idnombreComercial')
-                ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
-                ->join('propietario as p', 'p.id', '=', 'li.idpropietario')
-                ->where('li.idnombreComercial', $id)
-                ->first();
-    
-            if ($licencia) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Datos obtenidos correctamente',
-                    'licencia' => $licencia
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Licencia no encontrada'
-                ], 404);
-            }
-        } catch (\Exception $e) {
+{
+    try {
+        $licencia = DB::table('licencia as li')
+            ->select('li.id', 'ra.razonSocial', 'ru.nombre_rubro as nombreRubro', 'nom.nombreComercial', 'li.area', 'li.aforo','li.direccionEstablecimiento','p.dni', 'li.ruc', 'li.inspector', 'li.fechaEmision','li.vigencia as vigencia')
+            ->join('razonesociales as ra', 'ra.id', '=', 'li.idrazonsocial')
+            ->join('nombrescomerciales as nom', 'nom.id', '=', 'li.idnombreComercial')
+            ->join('rubro as ru', 'ru.id', '=', 'li.idrubro')
+            ->join('propietario as p', 'p.id', '=', 'li.idpropietario')
+            ->where('li.idnombreComercial', $id)
+            ->first();
+
+        if (!$licencia) {
             return response()->json([
                 'success' => false,
-                'message' => 'Se produjo un error al expedir la licencia.'
-            ], 500);
+                'message' => 'Licencia no encontrada'
+            ], 404);
         }
+
+        // Insertar en la tabla 'licenciaexpedidos' con la fecha actual
+        DB::table('licenciaexpedidos')->insert([
+            'idlicencia' => $licencia->id,
+            'fecha' => DB::raw('NOW()') // Inserta la fecha actual
+        ]);
+
+        // Actualizar el estado del carnet a "Expedido" en la tabla 'licencia'
+        DB::table('licencia')->where('id', $licencia->id)->update([
+            'estado' => 'Expedido'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Licencia expedida correctamente',
+            'licencia' => $licencia
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Se produjo un error al expedir la licencia.'
+        ], 500);
     }
+}
+
+    
+
     
 
 }

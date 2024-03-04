@@ -16,15 +16,12 @@ use Generator;
 class AuthController extends Controller
 {
     public function __construct()
-    {
+     {
         $this->middleware('auth:api', ['except' => ['login','register']]);
-    }
+     }
     
 
     public function login(LoginRequest $request)
-
-
-    
     {
         $user = User::verifyCredentials($request->email, $request->password);
         if (!$user) {
@@ -38,6 +35,7 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'typeUser' => $user->type_user,
             // Agrega más campos según sea necesario
         ];
         return response()->json([
@@ -47,7 +45,8 @@ class AuthController extends Controller
             'user' =>[
                 'id' =>$user->id,
                 'nombre'=>$user->name,
-                'email'=>$user->email
+                'email'=>$user->email,
+                'typeUser'=>$user->type_user
             ]
 
         ], 200);
