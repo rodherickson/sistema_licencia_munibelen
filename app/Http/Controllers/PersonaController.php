@@ -103,7 +103,7 @@ class PersonaController extends Controller
             $razonSocial = $responseData['razonSocial'];
             $direccion = $responseData['direccion'];
     
-            // Aquí puedes hacer lo que desees con los datos obtenidos
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Datos obtenidos correctamente',

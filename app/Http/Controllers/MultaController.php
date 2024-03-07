@@ -112,8 +112,6 @@ class MultaController extends Controller
                         $uniqueName . '.' . $extension,
                         'public'
                     );
-                    
-                    // Guarda los detalles del archivo adjunto junto con el ID de la multa
                     Multa_files::saveFiles($multa->id, $filename, $uniqueName, $extension, $path,auth()->user()->id);
                 }
             }
@@ -133,7 +131,43 @@ class MultaController extends Controller
         }
     }
     
+    public function consultarMultasPorTipoYFecha()
+    {
+        // Ejecutar la consulta para establecer la configuración local a español
+        DB::statement("SET lc_time_names = 'es_ES'");
     
+        // Consulta para obtener el conteo de multas por mes y tipo
+        $multasPorMes = DB::table('multa as m')
+            ->join('detalle_multa as dm', 'dm.idmulta', '=', 'm.id')
+            ->join('tipo_multa as tm', 'tm.id', '=', 'm.idtipoMulta')
+            ->select(DB::raw('MONTHNAME(dm.fecha) as month'), 'tm.nombreMulta', DB::raw('COUNT(*) as totalMultas'))
+            ->groupBy('month', 'tm.nombreMulta')
+            ->orderBy('month')
+            ->get();
+    
+        // Formatear los resultados según el formato deseado
+        $resultadoFormateado = [];
+    
+        foreach ($multasPorMes as $multa) {
+            // Obtener el nombre del mes en español
+            $nombreMes = $multa->month;
+    
+            // Crear la entrada en el array asociativo si no existe
+            if (!isset($resultadoFormateado[$nombreMes])) {
+                $resultadoFormateado[$nombreMes] = [];
+            }
+    
+            // Agregar los detalles de la multa al resultado formateado
+            $resultadoFormateado[$nombreMes][] = [
+                'nombreMulta' => $multa->nombreMulta,
+                'totalMultas' => $multa->totalMultas,
+            ];
+        }
+    
+        return $resultadoFormateado;
+    }
+    
+    }
    
      
-}
+

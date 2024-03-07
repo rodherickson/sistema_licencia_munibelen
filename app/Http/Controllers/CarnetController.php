@@ -199,18 +199,46 @@ class CarnetController extends Controller
     }
 
 
-    public function obtenerReportePadronVendedores()
+    public function obtenerReportePadronVendedores(Request $request)
     {
-        // Realizar la consulta utilizando Eloquent o Query Builder
+        
+        // Obtener los datos de la solicitud
+        $rubros = $request->input('rubros', []);
+        $estados = $request->input('estados', []);
+        $distritos = $request->input('distritos', []);
+        $fechaEmision = $request->input('fechaEmision', null);
+        
+        // Realizar la consulta utilizando Eloquent
         $carnet = DB::table('carnet AS c')
-            ->select('c.id AS nro','prop.id', 'prop.nombre', 'prop.apellidos', 'prop.dni', 'rub.nombre_rubro', 'prop.direccion', 'c.estado', 'prop.distrito', 'c.fechaEmision', 'c.lugarEstablecimiento')
-            ->join('propietario AS prop', 'prop.id', '=', 'c.idpropietario')
-            ->join('rubro AS rub', 'rub.id', '=', 'c.idrubro')
-            ->get();
+        ->select('c.id AS nro', 'prop.id', 'prop.nombre', 'prop.apellidos', 'prop.dni', 'rub.nombre_rubro', 'prop.direccion', 'c.estado', 'prop.distrito', 'c.fechaEmision', 'c.lugarEstablecimiento')
+        ->join('propietario AS prop', 'prop.id', '=', 'c.idpropietario')
+        ->join('rubro AS rub', 'rub.id', '=', 'c.idrubro')
+        ->whereIn('rub.nombre_rubro', $rubros)
+        ->whereIn('c.estado', $estados)
+        ->whereIn('prop.distrito', $distritos)
+        ->where(function ($query) use ($fechaEmision) {
+            if (!is_null($fechaEmision)) {
+                $query->whereIn('c.fechaEmision', $fechaEmision);
+            }
+        })
+        ->whereIn('c.fechaEmision', function ($query) {
+            $query->select(DB::raw('MAX(c2.fechaEmision)'))
+                ->from('carnet AS c2')
+                ->whereColumn('c2.lugarEstablecimiento', 'c.lugarEstablecimiento');
+        })
+        ->orderBy('c.fechaEmision', 'desc')  
+        ->get();
     
-        // Organizar los resultados en la estructura deseada
+    if ($carnet->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No se encontraron datos con los filtros proporcionados.'
+        ]);
+    }
+        
+        
         $reportePadronVendedores = [];
-    
+        
         foreach ($carnet as $resultado) {
             $lugarEstablecimiento = $resultado->lugarEstablecimiento;
     
@@ -219,7 +247,7 @@ class CarnetController extends Controller
                 $reportePadronVendedores[$lugarEstablecimiento] = ['lugarEstablecimiento' => $lugarEstablecimiento, 'vendedores' => []];
             }
     
-            // Agregar los datos del vendedor al lugarEstablecimiento correspondiente
+            
             $reportePadronVendedores[$lugarEstablecimiento]['vendedores'][] = [
                 'nro' =>$resultado->nro,
                 'nombre' => $resultado->nombre,
@@ -239,13 +267,12 @@ class CarnetController extends Controller
             'reportePadronVendedores' => array_values($reportePadronVendedores)
         ]);
     }
-
+    
+    
     public function contarCarnetsPorMeses()
     {
         // Establecer la configuración regional en español para obtener los nombres de los meses en español
         DB::statement("SET lc_time_names = 'es_ES'");
-    
-        // Realizar la consulta utilizando DB::select() y SQL raw para obtener el conteo por meses
         $conteoPorMeses = DB::select('
             SELECT 
                 DATE_FORMAT(fechaEmision, "%Y-%m") AS mes_numero,
@@ -271,6 +298,57 @@ class CarnetController extends Controller
         return response()->json($carnets);
     }
     
-
+    public function contarCarnetsPorEstado()
+    {
+        // Establecer la configuración regional en español para obtener los nombres de los meses en español
+        DB::statement("SET lc_time_names = 'es_ES'");
     
+        // Consulta para contar los carnets por estado (Expedido o Caducado)
+        $conteoPorEstado = DB::table('carnet')
+            ->select('estado', DB::raw('COUNT(*) as total'))
+            ->whereIn('estado', ['Expedido', 'Caducado'])
+            ->groupBy('estado')
+            ->get();
+    
+        // Formatear los resultados según el formato deseado
+        $resultadoFormateado = [];
+    
+        foreach ($conteoPorEstado as $row) {
+            $estado = $row->estado;
+            $total = $row->total;
+    
+            // Agregar el conteo de carnets por estado al resultado formateado
+            $resultadoFormateado[$estado] = $total;
+        }
+    
+        return response()->json($resultadoFormateado);
+    }
+    
+
+
+
+
+
+    public function actualizarEstadoCarnets()
+    {
+        
+        $carnets = CarnetModel::all();
+
+        
+        $fechaActual = Carbon::now();
+
+        // Iterar sobre cada carnet y verificar si está caducado
+        foreach ($carnets as $carnet) {
+            if ($carnet->fecha_caducidad < $fechaActual) {
+                $carnet->estado = 'caducado';
+                $carnet->save();
+            }
+        }
+
+        // // Redireccionar o responder según sea necesario
+        // return redirect()->route('nombre_de_la_ruta');
+    }
+    
+
+
 }

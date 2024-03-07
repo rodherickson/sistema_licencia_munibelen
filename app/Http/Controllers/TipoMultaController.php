@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TipoMultaModel;
+use Illuminate\Support\Facades\DB;
 
 class TipoMultaController extends Controller
 {
@@ -30,4 +31,5 @@ class TipoMultaController extends Controller
         }
     
     }
+
 }
