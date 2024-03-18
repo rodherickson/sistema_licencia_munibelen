@@ -13,5 +13,5 @@ class Detalle_MultaModel extends Model
     protected $fillable = 
     ['idmulta', 
     'fecha',
-     'estatus'];
+     'status'];
 }

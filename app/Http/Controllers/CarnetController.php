@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Validator;
 class CarnetController extends Controller
 {
 
-   
+
 
     public function register(CarnetRequest $request)
     {
@@ -74,57 +74,57 @@ class CarnetController extends Controller
     }
 
     public function obtenercarnet(Request $request, $dni)
-{
-    try {
-        if (!is_numeric($dni) || strlen($dni) !== 8) {
-            return response()->json(['error' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
+    {
+        try {
+            if (!is_numeric($dni) || strlen($dni) !== 8) {
+                return response()->json(['error' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
+            }
+
+            $carnet = DB::table('carnet as c')
+                ->select(
+                    'c.id',
+                    'p.apellidos',
+                    'p.nombre',
+                    'p.dni',
+                    'p.direccion',
+                    'c.lugarEstablecimiento',
+                    'c.cuadra',
+                    'c.largo',
+                    'c.ancho',
+                    'r.nombre_rubro as rubro',
+                    'c.nroMesa',
+                    'c.categoria',
+                    'c.fechaEmision',
+                    'c.fechaCaducidad',
+                    'c.estado',
+                    'pf.original_name',
+                    'pf.path_file'
+                )
+                ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
+                ->join('propietario_files as pf', 'pf.id_propietario_files', '=', 'p.id')
+                ->join('rubro as r', 'r.id', '=', 'c.idrubro')
+                ->where('p.dni', $dni)
+                ->where(function ($query) {
+                    $query->where('pf.path_file', 'LIKE', '%.jpg')
+                        ->orWhere('pf.path_file', 'LIKE', '%.jpeg')
+                        ->orWhere('pf.path_file', 'LIKE', '%.png');
+                })
+                ->get();
+
+            if ($carnet->isEmpty()) {
+                return response()->json(['success' => false, 'message' => 'No se encontró ningún carnet con el DNI especificado.'], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Datos obtenidos correctamente',
+                'carnet' => $carnet
+            ]);
+        } catch (\Exception $e) {
+            // Manejo de la excepción
+            return response()->json(['success' => false, 'message' => 'Se produjo un error al obtener el carnet: ' . $e->getMessage()], 500);
         }
-
-        $carnet = DB::table('carnet as c')
-        ->select(
-            'c.id',
-            'p.apellidos',
-            'p.nombre',
-            'p.dni',
-            'p.direccion',
-            'c.lugarEstablecimiento',
-            'c.cuadra',
-            'c.largo',
-            'c.ancho',
-            'r.nombre_rubro as rubro',
-            'c.nroMesa',
-            'c.categoria',
-            'c.fechaEmision',
-            'c.fechaCaducidad',
-            'c.estado',
-            'pf.original_name',
-            'pf.path_file'
-        )
-        ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
-        ->join('propietario_files as pf', 'pf.id_propietario_files', '=', 'p.id')
-        ->join('rubro as r', 'r.id', '=', 'c.idrubro')
-        ->where('p.dni', $dni)
-        ->where(function ($query) {
-            $query->where('pf.path_file', 'LIKE', '%.jpg')
-                ->orWhere('pf.path_file', 'LIKE', '%.jpeg')
-                ->orWhere('pf.path_file', 'LIKE', '%.png');
-        })
-        ->get();
-
-        if ($carnet->isEmpty()) {
-            return response()->json(['success' => false, 'message' => 'No se encontró ningún carnet con el DNI especificado.'], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Datos obtenidos correctamente',
-            'carnet' => $carnet
-        ]);
-    } catch (\Exception $e) {
-        // Manejo de la excepción
-        return response()->json(['success' => false, 'message' => 'Se produjo un error al obtener el carnet: ' . $e->getMessage()], 500);
     }
-}
 
 
     public function listcarnet(Request $request)
@@ -201,55 +201,55 @@ class CarnetController extends Controller
 
     public function obtenerReportePadronVendedores(Request $request)
     {
-        
+
         // Obtener los datos de la solicitud
         $rubros = $request->input('rubros', []);
         $estados = $request->input('estados', []);
         $distritos = $request->input('distritos', []);
         $fechaEmision = $request->input('fechaEmision', null);
-        
+
         // Realizar la consulta utilizando Eloquent
         $carnet = DB::table('carnet AS c')
-        ->select('c.id AS nro', 'prop.id', 'prop.nombre', 'prop.apellidos', 'prop.dni', 'rub.nombre_rubro', 'prop.direccion', 'c.estado', 'prop.distrito', 'c.fechaEmision', 'c.lugarEstablecimiento')
-        ->join('propietario AS prop', 'prop.id', '=', 'c.idpropietario')
-        ->join('rubro AS rub', 'rub.id', '=', 'c.idrubro')
-        ->whereIn('rub.nombre_rubro', $rubros)
-        ->whereIn('c.estado', $estados)
-        ->whereIn('prop.distrito', $distritos)
-        ->where(function ($query) use ($fechaEmision) {
-            if (!is_null($fechaEmision)) {
-                $query->whereIn('c.fechaEmision', $fechaEmision);
-            }
-        })
-        ->whereIn('c.fechaEmision', function ($query) {
-            $query->select(DB::raw('MAX(c2.fechaEmision)'))
-                ->from('carnet AS c2')
-                ->whereColumn('c2.lugarEstablecimiento', 'c.lugarEstablecimiento');
-        })
-        ->orderBy('c.fechaEmision', 'desc')  
-        ->get();
-    
-    if ($carnet->isEmpty()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'No se encontraron datos con los filtros proporcionados.'
-        ]);
-    }
-        
-        
+            ->select('c.id AS nro', 'prop.id', 'prop.nombre', 'prop.apellidos', 'prop.dni', 'rub.nombre_rubro', 'prop.direccion', 'c.estado', 'prop.distrito', 'c.fechaEmision', 'c.lugarEstablecimiento')
+            ->join('propietario AS prop', 'prop.id', '=', 'c.idpropietario')
+            ->join('rubro AS rub', 'rub.id', '=', 'c.idrubro')
+            ->whereIn('rub.nombre_rubro', $rubros)
+            ->whereIn('c.estado', $estados)
+            ->whereIn('prop.distrito', $distritos)
+            ->where(function ($query) use ($fechaEmision) {
+                if (!is_null($fechaEmision)) {
+                    $query->where('c.fechaEmision', '<=', $fechaEmision);
+                }
+            })
+            ->whereIn('c.fechaEmision', function ($query) {
+                $query->select(DB::raw('MAX(c2.fechaEmision)'))
+                    ->from('carnet AS c2')
+                    ->whereColumn('c2.lugarEstablecimiento', 'c.lugarEstablecimiento');
+            })
+            ->orderBy('c.fechaEmision', 'desc')
+            ->get();
+
+        if ($carnet->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontraron datos con los filtros proporcionados.'
+            ]);
+        }
+
+
         $reportePadronVendedores = [];
-        
+
         foreach ($carnet as $resultado) {
             $lugarEstablecimiento = $resultado->lugarEstablecimiento;
-    
+
             // Verificar si ya existe el lugarEstablecimiento en el array
             if (!isset($reportePadronVendedores[$lugarEstablecimiento])) {
                 $reportePadronVendedores[$lugarEstablecimiento] = ['lugarEstablecimiento' => $lugarEstablecimiento, 'vendedores' => []];
             }
-    
-            
+
+
             $reportePadronVendedores[$lugarEstablecimiento]['vendedores'][] = [
-                'nro' =>$resultado->nro,
+                'nro' => $resultado->nro,
                 'nombre' => $resultado->nombre,
                 'apellidos' => $resultado->apellidos,
                 'dni' => $resultado->dni,
@@ -259,7 +259,7 @@ class CarnetController extends Controller
                 'distrito' => $resultado->distrito,
             ];
         }
-    
+
         // Devolver los datos en formato JSON
         return response()->json([
             'success' => true,
@@ -267,74 +267,102 @@ class CarnetController extends Controller
             'reportePadronVendedores' => array_values($reportePadronVendedores)
         ]);
     }
-    
-    
+
+
     public function contarCarnetsPorMeses()
     {
         // Establecer la configuración regional en español para obtener los nombres de los meses en español
         DB::statement("SET lc_time_names = 'es_ES'");
         $conteoPorMeses = DB::select('
             SELECT 
-                DATE_FORMAT(fechaEmision, "%Y-%m") AS mes_numero,
-                DATE_FORMAT(fechaEmision, "%M") AS mes_nombre,
+                YEAR(ce.fecha) AS año,
+                MONTHNAME(ce.fecha) AS mes,
                 COUNT(*) AS total
             FROM 
-                carnet
+                carnet ca
+            INNER JOIN 
+                carnetexpedidos ce 
+            ON 
+                ce.idcarnet = ca.id
             WHERE
-                estado = "Expedido"
+                ca.estado = "Expedido"
             GROUP BY 
-                mes_numero, mes_nombre
+                YEAR(ce.fecha), MONTH(ce.fecha), ce.fecha
             ORDER BY 
-                mes_numero
+                año, MONTH(ce.fecha)
         ');
     
         // Convertir los resultados en un array asociativo para facilitar su uso en la gráfica
-        $carnets = [];
+        $carnetsExpedidosMensuales = [];
+        $carnetsExpedidosAnuales = [];
         foreach ($conteoPorMeses as $row) {
-            $mes = $row->mes_nombre;
+            $año = $row->año;
+            $mes = ucfirst(substr($row->mes, 0, 3)); // Obtener las primeras tres letras del nombre del mes
             $total = $row->total;
-            $carnets[$mes] = $total;
-        }
-        return response()->json($carnets);
-    }
     
+            // Datos mensuales
+            $carnetsExpedidosMensuales[$mes] = $total;
+    
+            // Datos anuales
+            if (!isset($carnetsExpedidosAnuales[$año])) {
+                $carnetsExpedidosAnuales[$año] = 0;
+            }
+            $carnetsExpedidosAnuales[$año] += $total;
+        }
+    
+        // Formatear datos mensuales
+        $dataMensual = [
+            'filtro' => 'Mensual',
+            'data' => array_map(function ($mes, $total) {
+                return ['label' => $mes, 'value' => $total];
+            }, array_keys($carnetsExpedidosMensuales), $carnetsExpedidosMensuales),
+        ];
+    
+        // Formatear datos anuales
+        $dataAnual = [
+            'filtro' => 'Anual',
+            'data' => array_map(function ($año, $total) {
+                return ['label' => (string)$año, 'value' => $total];
+            }, array_keys($carnetsExpedidosAnuales), $carnetsExpedidosAnuales),
+        ];
+    
+        // Fusionar datos mensuales y anuales
+        $data = [$dataMensual, $dataAnual];
+    
+        return response()->json(['dataCarnetExpedidas'=>$data]);
+    }
+
     public function contarCarnetsPorEstado()
     {
-        // Establecer la configuración regional en español para obtener los nombres de los meses en español
         DB::statement("SET lc_time_names = 'es_ES'");
     
-        // Consulta para contar los carnets por estado (Expedido o Caducado)
-        $conteoPorEstado = DB::table('carnet')
-            ->select('estado', DB::raw('COUNT(*) as total'))
+        $carnets = CarnetModel::query()
+            ->selectRaw('estado, COUNT(*) AS total')
             ->whereIn('estado', ['Expedido', 'Caducado'])
             ->groupBy('estado')
-            ->get();
+            ->get()
+            ->map(function ($row) {
+                $estado = $row->estado;
+                $total = $row->total;
     
-        // Formatear los resultados según el formato deseado
-        $resultadoFormateado = [];
+                return [$estado => ['total' => $total]];
+            })
+            ->values() // Convertir a un arreglo de valores
+            ->toArray();
     
-        foreach ($conteoPorEstado as $row) {
-            $estado = $row->estado;
-            $total = $row->total;
+        $data = ['data' => $carnets];
     
-            // Agregar el conteo de carnets por estado al resultado formateado
-            $resultadoFormateado[$estado] = $total;
-        }
-    
-        return response()->json($resultadoFormateado);
+        return response()->json(['dataCarnetEstados'=>$data]);
     }
     
-
-
-
 
 
     public function actualizarEstadoCarnets()
     {
-        
+
         $carnets = CarnetModel::all();
 
-        
+
         $fechaActual = Carbon::now();
 
         // Iterar sobre cada carnet y verificar si está caducado
@@ -348,7 +376,4 @@ class CarnetController extends Controller
         // // Redireccionar o responder según sea necesario
         // return redirect()->route('nombre_de_la_ruta');
     }
-    
-
-
 }
