@@ -92,6 +92,12 @@ class MultaController extends Controller
     }
 
 
+    function compararMeses($a, $b) {
+        $mesesOrdenados = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        return array_search($a, $mesesOrdenados) - array_search($b, $mesesOrdenados);
+    }
+
+
     public function obtenerDatosTipoMultas()
     {
         // Consulta para obtener el recuento de multas por tipo, año y mes
@@ -131,14 +137,16 @@ class MultaController extends Controller
             }
         }
     
-        // Ordenar los meses alfabéticamente y obtener nombres de meses abreviados para el filtro mensual
-        $mesesAbreviados = array_map(function ($mes) {
-            return substr($mes, 0, 3);
-        }, $meses);
-        sort($mesesAbreviados);
+        // Ordenar los meses por su posición en el año
+        usort($meses, function($a, $b) {
+            $mesesOrdenados = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            return array_search($a, $mesesOrdenados) - array_search($b, $mesesOrdenados);
+        });
     
         // Llenar las etiquetas de meses para el filtro mensual
-        $dataMensual['label'] = $mesesAbreviados;
+        $dataMensual['label'] = array_map(function ($mes) {
+            return substr($mes, 0, 3);
+        }, $meses);
     
         // Procesar los resultados de la consulta
         foreach ($multas as $multa) {
@@ -148,13 +156,13 @@ class MultaController extends Controller
                 // Si no existe, agregar una nueva entrada
                 $dataMensual['data'][] = [
                     'label' => $multa->nombreMulta,
-                    'value' => array_fill(0, count($mesesAbreviados), 0), // Inicializar con 0 multas para cada mes
+                    'value' => array_fill(0, count($meses), 0), // Inicializar con 0 multas para cada mes
                 ];
                 $tipoMultaIndex = count($dataMensual['data']) - 1;
             }
     
             // Actualizar el valor de la multa para el mes correspondiente
-            $mesIndex = array_search(substr($multa->mes, 0, 3), $mesesAbreviados);
+            $mesIndex = array_search(substr($multa->mes, 0, 3), $dataMensual['label']);
             if ($mesIndex !== false) {
                 $dataMensual['data'][$tipoMultaIndex]['value'][$mesIndex] += $multa->totalMultas;
             }
