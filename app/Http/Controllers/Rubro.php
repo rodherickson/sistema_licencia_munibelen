@@ -13,11 +13,7 @@ class Rubro extends Controller
         try{
 
             $rubrosFromDB = DB::table('rubro')->select('id', 'nombre_rubro')->get();
-
-            // Inicializamos un array vacío para almacenar los rubros formateados
             $rubros = [];
-    
-            // Iteramos sobre los resultados de la consulta
             foreach ($rubrosFromDB as $rubro) {
                 // Formateamos cada rubro y lo agregamos al array de rubros
                 $rubros[] = [

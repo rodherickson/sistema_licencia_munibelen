@@ -35,8 +35,6 @@ class ConstanciaController extends Controller
             'fecha' => DB::raw('NOW()')
         ]);
 
-
-        // Construir la respuesta con la información solicitada
         $respuesta = [
             'idconstancia' => $constanciaId,
             'idpropietario' => $propietario->id,
@@ -54,8 +52,5 @@ class ConstanciaController extends Controller
         return response()->json(['success' => false, 'message' => 'Se produjo un error al obtener la constancia: ' . $e->getMessage()], 500);
     }
 }
-
-
-
 
 }
