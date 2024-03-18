@@ -256,73 +256,93 @@ class LicenciaController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Se produjo un error al expedir la licencia.'
-            ], 500);
+                'message' => 'Licencia no encontrada'
+            ], 404);
         }
-    }
 
+        // Insertar en la tabla 'licenciaexpedidos' con la fecha actual
+        DB::table('licenciaexpedidos')->insert([
+            'idlicencia' => $licencia->id,
+            'fecha' => DB::raw('NOW()') // Inserta la fecha actual
+        ]);
+
+        // Actualizar el estado del carnet a "Expedido" en la tabla 'licencia'
+        DB::table('licencia')->where('id', $licencia->id)->update([
+            'estado' => 'Expedido'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Licencia expedida correctamente',
+            'licencia' => $licencia
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Se produjo un error al expedir la licencia.'
+        ], 500);
+    }
 
     public function contarLicenciasPorMeses()
-{
-    // Establecer la configuración regional en español para obtener los nombres de los meses en español
-    DB::statement("SET lc_time_names = 'es_ES'");
-    $conteoPorMeses = DB::select('
-        SELECT 
-            YEAR(le.fecha) AS año,
-            MONTHNAME(le.fecha) AS mes,
-            COUNT(*) AS total
-        FROM 
-            licencia li
-        INNER JOIN 
-            licenciaexpedidos le 
-        ON 
-            le.idlicencia = li.id
-        WHERE
-            li.estado = "Expedido"
-        GROUP BY 
-            YEAR(le.fecha), MONTH(le.fecha), le.fecha
-        ORDER BY 
-            año, MONTH(le.fecha)
-    ');
+    {
+        // Establecer la configuración regional en español para obtener los nombres de los meses en español
+        DB::statement("SET lc_time_names = 'es_ES'");
+        $conteoPorMeses = DB::select('
+            SELECT 
+                YEAR(le.fecha) AS año,
+                MONTHNAME(le.fecha) AS mes,
+                COUNT(*) AS total
+            FROM 
+                licencia li
+            INNER JOIN 
+                licenciaexpedidos le 
+            ON 
+                le.idlicencia = li.id
+            WHERE
+                li.estado = "Expedido"
+            GROUP BY 
+                YEAR(le.fecha), MONTH(le.fecha), le.fecha
+            ORDER BY 
+                año, MONTH(le.fecha)
+        ');
 
-    // Convertir los resultados en un array asociativo para facilitar su uso en la gráfica
-    $licenciasExpedidasMensuales = [];
-    $licenciasExpedidasAnuales = [];
-    foreach ($conteoPorMeses as $row) {
-        $año = $row->año;
-        $mes = ucfirst(substr($row->mes, 0, 3)); // Obtener las primeras tres letras del nombre del mes
-        $total = $row->total;
+        // Convertir los resultados en un array asociativo para facilitar su uso en la gráfica
+        $licenciasExpedidasMensuales = [];
+        $licenciasExpedidasAnuales = [];
+        foreach ($conteoPorMeses as $row) {
+            $año = $row->año;
+            $mes = ucfirst(substr($row->mes, 0, 3)); // Obtener las primeras tres letras del nombre del mes
+            $total = $row->total;
 
-        // Datos mensuales
-        $licenciasExpedidasMensuales[$mes] = $total;
+            // Datos mensuales
+            $licenciasExpedidasMensuales[$mes] = $total;
 
-        // Datos anuales
-        if (!isset($licenciasExpedidasAnuales[$año])) {
-            $licenciasExpedidasAnuales[$año] = 0;
+            // Datos anuales
+            if (!isset($licenciasExpedidasAnuales[$año])) {
+                $licenciasExpedidasAnuales[$año] = 0;
+            }
+            $licenciasExpedidasAnuales[$año] += $total;
         }
-        $licenciasExpedidasAnuales[$año] += $total;
+
+        // Formatear datos mensuales
+        $dataMensual = [
+            'filtro' => 'Mensual',
+            'data' => array_map(function ($mes, $total) {
+                return ['label' => $mes, 'value' => $total];
+            }, array_keys($licenciasExpedidasMensuales), $licenciasExpedidasMensuales),
+        ];
+
+        // Formatear datos anuales
+        $dataAnual = [
+            'filtro' => 'Anual',
+            'data' => array_map(function ($año, $total) {
+                return ['label' => (string)$año, 'value' => $total];
+            }, array_keys($licenciasExpedidasAnuales), $licenciasExpedidasAnuales),
+        ];
+
+        // Fusionar datos mensuales y anuales
+        $data = [$dataMensual, $dataAnual];
+
+        return response()->json(['dataLicenciasExpedidas'=>$data]);
     }
-
-    // Formatear datos mensuales
-    $dataMensual = [
-        'filtro' => 'Mensual',
-        'data' => array_map(function ($mes, $total) {
-            return ['label' => $mes, 'value' => $total];
-        }, array_keys($licenciasExpedidasMensuales), $licenciasExpedidasMensuales),
-    ];
-
-    // Formatear datos anuales
-    $dataAnual = [
-        'filtro' => 'Anual',
-        'data' => array_map(function ($año, $total) {
-            return ['label' => (string)$año, 'value' => $total];
-        }, array_keys($licenciasExpedidasAnuales), $licenciasExpedidasAnuales),
-    ];
-
-    // Fusionar datos mensuales y anuales
-    $data = [$dataMensual, $dataAnual];
-
-    return response()->json(['dataLicenciasExpedidas'=>$data]);
-}
-
 }

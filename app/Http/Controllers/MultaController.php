@@ -91,7 +91,6 @@ class MultaController extends Controller
         }
     }
 
-
     function compararMeses($a, $b) {
         $mesesOrdenados = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         return array_search($a, $mesesOrdenados) - array_search($b, $mesesOrdenados);
@@ -198,6 +197,4 @@ class MultaController extends Controller
     
         return response()->json(['dataTipoMultas'=>$dataTipoMultas]);
     }
-    
-    
 }

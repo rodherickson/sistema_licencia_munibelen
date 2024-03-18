@@ -8,10 +8,9 @@ use Illuminate\Support\Facades\DB;
 
 class TipoMultaController extends Controller
 {
-    public function listTipoMulta(){
-
+    public function listTipoMulta()
+    {
         try {
-    
             $tipoMultaModel = new TipoMultaModel();
             $tiposMultas = $tipoMultaModel->listTipoMulta();
     
@@ -20,16 +19,12 @@ class TipoMultaController extends Controller
                 'message' => 'Tipos de Multas obtenidos con éxito',
                 'tiposMulta' => $tiposMultas,
             ]);
-    
         } catch (\Exception $e) {
-    
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage(),
             ], 500);
     
         }
-    
     }
-
 }
