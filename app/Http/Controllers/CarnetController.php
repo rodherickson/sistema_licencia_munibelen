@@ -376,8 +376,5 @@ class CarnetController extends Controller
                 $carnet->save();
             }
         }
-
-        // // Redireccionar o responder según sea necesario
-        // return redirect()->route('nombre_de_la_ruta');
     }
 }
