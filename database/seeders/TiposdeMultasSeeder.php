@@ -23,7 +23,6 @@ class TiposdeMultasSeeder extends Seeder
             ['id' => '7', 'nombreMulta' => 'MULTA DE VEHICULOS DE TRANSPORTE DE ALIMENTOS AGROPECUARIOS PRIMARIOS Y PIENSOS', 'descripcion' => ''],
             ['id' => '8', 'nombreMulta' => 'MULTA POR CONDICIONES GENERALES DEL VEHICULO', 'descripcion' => ''],
             ['id' => '9', 'nombreMulta' => 'MULTA DE MANIPULADOR', 'descripcion' => ''],
-
         ];
         DB::table('tipo_multa')->insert($tipoMultas);
     }

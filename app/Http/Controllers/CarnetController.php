@@ -268,7 +268,6 @@ class CarnetController extends Controller
         ]);
     }
 
-
     public function contarCarnetsPorMeses()
     {
         // Establecer la configuración regional en español para obtener los nombres de los meses en español

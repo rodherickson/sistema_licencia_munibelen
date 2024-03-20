@@ -34,6 +34,7 @@ class ConstanciaController extends Controller
             'idconstancia' => $constanciaId,
             'fecha' => DB::raw('NOW()')
         ]);
+
         $respuesta = [
             'idconstancia' => $constanciaId,
             'idpropietario' => $propietario->id,
