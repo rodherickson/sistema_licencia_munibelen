@@ -256,31 +256,9 @@ class LicenciaController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Licencia no encontrada'
-            ], 404);
+                'message' => 'Se produjo un error al expedir la licencia.'
+            ], 500);
         }
-
-        // Insertar en la tabla 'licenciaexpedidos' con la fecha actual
-        DB::table('licenciaexpedidos')->insert([
-            'idlicencia' => $licencia->id,
-            'fecha' => DB::raw('NOW()') // Inserta la fecha actual
-        ]);
-
-        // Actualizar el estado del carnet a "Expedido" en la tabla 'licencia'
-        DB::table('licencia')->where('id', $licencia->id)->update([
-            'estado' => 'Expedido'
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Licencia expedida correctamente',
-            'licencia' => $licencia
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Se produjo un error al expedir la licencia.'
-        ], 500);
     }
 
     public function contarLicenciasPorMeses()
@@ -342,10 +320,11 @@ class LicenciaController extends Controller
 
         // Fusionar datos mensuales y anuales
         $data = [$dataMensual, $dataAnual];
-
-        return response()->json([
-        'success' => true,
-        'message' => 'Datos obtenidos correctamente',
-        'dataLicenciasExpedidas'=>$data]);
+        
+        response()->json([
+            'success' => true,
+            'message' => 'Datos obtenidos correctamente',
+            'dataLicenciasExpedidas'=>$data]);
     }
+
 }
