@@ -36,7 +36,6 @@ Route::get('/persona/ruc/{ruc}',[PersonaController::class,'searchRuc']);
 Route::get('/propietario/{dni}', [Propietario::class, 'mostrarpropietario']);
 Route::post('/multa', [MultaController::class, 'registerMulta']);
 Route::post('/multa/{idmulta}', [MultaController::class, 'updateMulta']);
-
 Route::get('/multa/dashboard/consulta', [MultaController::class, 'obtenerDatosTipoMultas']);
 Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
 Route::get('/carnet', [CarnetController::class, 'listcarnet']);
