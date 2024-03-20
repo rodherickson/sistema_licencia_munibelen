@@ -322,7 +322,10 @@ class LicenciaController extends Controller
     // Fusionar datos mensuales y anuales
     $data = [$dataMensual, $dataAnual];
 
-    return response()->json(['dataLicenciasExpedidas'=>$data]);
+    return response()->json([
+        'success' => true,
+        'message' => 'Datos obtenidos correctamente',
+        'dataLicenciasExpedidas'=>$data]);
 }
 
 }
