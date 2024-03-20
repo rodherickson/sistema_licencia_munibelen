@@ -195,6 +195,9 @@ class MultaController extends Controller
         // Combinar datos mensuales y anuales
         $dataTipoMultas = [$dataMensual, $dataAnual];
     
-        return response()->json(['dataTipoMultas'=>$dataTipoMultas]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Datos obtenidos correctamente',
+            'dataTipoMultas'=>$dataTipoMultas]);
     }
 }

@@ -206,8 +206,7 @@ class CarnetController extends Controller
         $rubros = $request->input('rubros', []);
         $estados = $request->input('estados', []);
         $distritos = $request->input('distritos', []);
-        $fechaEmision = $request->input('fechaEmision', null);
-
+        $fechaUltimoRegistro = $request->input('fechaUltimoRegistro', null);
         // Realizar la consulta utilizando Eloquent
         $carnet = DB::table('carnet AS c')
             ->select('c.id AS nro', 'prop.id', 'prop.nombre', 'prop.apellidos', 'prop.dni', 'rub.nombre_rubro', 'prop.direccion', 'c.estado', 'prop.distrito', 'c.fechaEmision', 'c.lugarEstablecimiento')
@@ -216,9 +215,9 @@ class CarnetController extends Controller
             ->whereIn('rub.nombre_rubro', $rubros)
             ->whereIn('c.estado', $estados)
             ->whereIn('prop.distrito', $distritos)
-            ->where(function ($query) use ($fechaEmision) {
-                if (!is_null($fechaEmision)) {
-                    $query->where('c.fechaEmision', '<=', $fechaEmision);
+            ->where(function ($query) use ($fechaUltimoRegistro) {
+                if (!is_null($fechaUltimoRegistro)) {
+                    $query->where('c.fechaEmision', '<=', $fechaUltimoRegistro);
                 }
             })
             ->whereIn('c.fechaEmision', function ($query) {
@@ -327,8 +326,11 @@ class CarnetController extends Controller
     
         // Fusionar datos mensuales y anuales
         $data = [$dataMensual, $dataAnual];
-    
-        return response()->json(['dataCarnetExpedidas'=>$data]);
+      
+        return response()->json([
+            'success' => true,
+            'message' => 'Datos obtenidos correctamente',
+            'dataCarnetExpedidas'=>$data]);
     }
 
     public function contarCarnetsPorEstado()
@@ -351,7 +353,10 @@ class CarnetController extends Controller
     
         $data = ['data' => $carnets];
     
-        return response()->json(['dataCarnetEstados'=>$data]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Datos obtenidos correctamente',
+            'dataCarnetEstados'=>$data]);
     }
     
 
