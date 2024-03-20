@@ -207,7 +207,6 @@ class CarnetController extends Controller
         $estados = $request->input('estados', []);
         $distritos = $request->input('distritos', []);
         $fechaUltimoRegistro = $request->input('fechaUltimoRegistro', null);
-
         // Realizar la consulta utilizando Eloquent
         $carnet = DB::table('carnet AS c')
             ->select('c.id AS nro', 'prop.id', 'prop.nombre', 'prop.apellidos', 'prop.dni', 'rub.nombre_rubro', 'prop.direccion', 'c.estado', 'prop.distrito', 'c.fechaEmision', 'c.lugarEstablecimiento')
@@ -327,7 +326,7 @@ class CarnetController extends Controller
     
         // Fusionar datos mensuales y anuales
         $data = [$dataMensual, $dataAnual];
-    
+      
         return response()->json([
             'success' => true,
             'message' => 'Datos obtenidos correctamente',
