@@ -45,7 +45,7 @@ class MultaController extends Controller
                 $detallemulta = Detalle_MultaModel::create([
                     'idmulta' => $multa->id,
                     'fecha' => $request->fechaEmisionMulta,
-                    'status' => $request->Condicion,
+                    'status' => $request->condicion,
 
                 ]);
 
