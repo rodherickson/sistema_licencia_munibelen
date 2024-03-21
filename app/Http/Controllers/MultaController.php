@@ -89,7 +89,8 @@ class MultaController extends Controller
         }
     }
 
-    function compararMeses($a, $b) {
+    function compararMeses($a, $b)
+    {
         $mesesOrdenados = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         return array_search($a, $mesesOrdenados) - array_search($b, $mesesOrdenados);
     }
@@ -112,7 +113,7 @@ class MultaController extends Controller
             ->orderByRaw('MONTH(dm.fecha)')
             ->orderBy('tm.nombreMulta', 'asc')
             ->get();
-    
+
         // Inicializar arrays para almacenar los datos
         $meses = [];
         $dataMensual = [
@@ -120,31 +121,31 @@ class MultaController extends Controller
             'label' => [],
             'data' => [],
         ];
-    
+
         $dataAnual = [
             'filtro' => 'Anual',
             'label' => [],
             'data' => [],
         ];
-    
+
         // Procesar los resultados de la consulta y construir las etiquetas de los meses
         foreach ($multas as $multa) {
             if (!in_array($multa->mes, $meses)) {
                 $meses[] = $multa->mes;
             }
         }
-    
+
         // Ordenar los meses por su posición en el año
-        usort($meses, function($a, $b) {
+        usort($meses, function ($a, $b) {
             $mesesOrdenados = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
             return array_search($a, $mesesOrdenados) - array_search($b, $mesesOrdenados);
         });
-    
+
         // Llenar las etiquetas de meses para el filtro mensual
         $dataMensual['label'] = array_map(function ($mes) {
             return substr($mes, 0, 3);
         }, $meses);
-    
+
         // Procesar los resultados de la consulta
         foreach ($multas as $multa) {
             // Verificar si ya existe una entrada para este tipo de multa en la parte mensual
@@ -157,28 +158,28 @@ class MultaController extends Controller
                 ];
                 $tipoMultaIndex = count($dataMensual['data']) - 1;
             }
-    
+
             // Actualizar el valor de la multa para el mes correspondiente
             $mesIndex = array_search(substr($multa->mes, 0, 3), $dataMensual['label']);
             if ($mesIndex !== false) {
                 $dataMensual['data'][$tipoMultaIndex]['value'][$mesIndex] += $multa->totalMultas;
             }
         }
-    
+
         // Obtener los años únicos
         $añosUnicos = array_unique(array_column($multas->toArray(), 'año'));
         sort($añosUnicos);
-    
+
         // Llenar las etiquetas de años para el filtro anual
         $dataAnual['label'] = $añosUnicos;
-    
+
         // Llenar los datos anuales con valores de multas en cero para cada año y tipo de multa
         foreach ($dataMensual['data'] as $tipoMultaData) {
             $dataAnual['data'][] = [
                 'label' => $tipoMultaData['label'],
                 'value' => array_fill(0, count($añosUnicos), 0), // Inicializar con 0 multas para cada año
             ];
-    
+
             // Recorrer todos los años y sumar el total de multas para este tipo de multa en cada año
             foreach ($multas as $multa) {
                 if ($multa->nombreMulta === $tipoMultaData['label']) {
@@ -189,28 +190,30 @@ class MultaController extends Controller
                 }
             }
         }
-    
+
         // Combinar datos mensuales y anuales
         $dataTipoMultas = [$dataMensual, $dataAnual];
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Datos obtenidos correctamente',
-            'dataTipoMultas'=>$dataTipoMultas]);
+            'dataTipoMultas' => $dataTipoMultas
+        ]);
     }
 
-   
 
-    public function updateMulta(Request $request, $idMulta) {
+
+    public function updateMulta(Request $request, $idMulta)
+    {
         try {
             DB::beginTransaction();
-            
+
             // Encuentra la multa que se va a actualizar
             $multa = MultaModel::findOrFail($idMulta);
-            
+
             // Encuentra o crea el detalle de la multa
             $detalleMulta = Detalle_MultaModel::where('idmulta', $multa->id)->first();
-            
+
             if (!$detalleMulta) {
                 // Manejar el caso cuando el detalle de la multa no existe
                 return response()->json([
@@ -224,27 +227,27 @@ class MultaController extends Controller
                 foreach ($request->file('anexosAdjuntos') as $file) {
                     $filename = $file->getClientOriginalName();
                     $extension = $file->getClientOriginalExtension();
-                    $uniqueName = date('YmdHis') . rand(10,99);
-        
+                    $uniqueName = date('YmdHis') . rand(10, 99);
+
                     $path = $file->storeAs(
                         'multa/' . date('Y/m'),
                         $uniqueName . '.' . $extension,
                         'public'
                     );
-        
+
                     // Guarda los detalles del archivo adjunto junto con el ID del detalle de la multa
                     Multa_files::saveFiles($detalleMulta->id, $filename, $uniqueName, $extension, $path, $request->user()->id);
                 }
             }
-            
+
             // Actualiza otros campos de la multa si es necesario
             $detalleMulta->update([
                 'status' => $request->status
             ]);
-            
-            
+
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Actualizado correctamente la multa',
@@ -257,7 +260,41 @@ class MultaController extends Controller
             ], 500);
         }
     }
-    
 
+    public function listarMultasEnProceso(Request $request){
+        try {
+            $request->validate([
+                'numberItems' => 'required|numeric',
+                'page' => 'required|numeric'
+            ]);
 
-}
+            $multas = DB::table('multa as mu')
+            ->select('mu.id','p.dni','nc.nombreComercial', 'tm.nombreMulta', 'dm.fecha', 'dm.status')
+            ->join('detalle_multa as dm', 'mu.id', '=', 'dm.idmulta')
+            ->join('tipo_multa as tm', 'mu.idtipoMulta', '=', 'tm.id')
+            ->join('licencia as li', 'mu.idlicencia', '=', 'li.id')
+            ->join('nombrescomerciales as nc', 'li.idnombreComercial', '=', 'nc.id')
+            ->join('propietario as p', 'li.idpropietario', '=', 'p.id')
+            ->where('dm.status', 'En Proceso')
+            ->orderBy('dm.fecha', 'ASC')
+                ->paginate($request->numberItems, ['*'], 'page', $request->page);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Multas obtenidos con éxito',
+                'multas' => $multas->items(),
+                'currentPage' => $multas->currentPage(),
+                'totalPages' => $multas->lastPage(),
+                'perPage' => $multas->perPage(),
+                'total' => $multas->total(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las Multas: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    }
+

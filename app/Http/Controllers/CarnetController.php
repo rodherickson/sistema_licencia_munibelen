@@ -371,7 +371,7 @@ class CarnetController extends Controller
 
         // Iterar sobre cada carnet y verificar si está caducado
         foreach ($carnets as $carnet) {
-            if ($carnet->fecha_caducidad < $fechaActual) {
+            if ($carnet->fechaCaducidad < $fechaActual) {
                 $carnet->estado = 'caducado';
                 $carnet->save();
             }
