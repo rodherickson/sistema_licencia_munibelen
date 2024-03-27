@@ -11,6 +11,7 @@ use App\Http\Controllers\MultaController;
 use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\ConstanciaController;
 use App\Http\Controllers\TipoMultaController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -39,6 +40,7 @@ Route::post('/multa', [MultaController::class, 'registerMulta']);
 Route::get('/multa/listar', [MultaController::class, 'listarMultasEnProceso']);
 Route::post('/multa/editar/{idmulta}', [MultaController::class, 'updateMulta']);
 Route::get('/multa/dashboard/consulta', [MultaController::class, 'obtenerDatosTipoMultas']);
+Route::get('multa/datos/{idmulta}', [MultaController::class, 'datosMulta']);
 Route::get('/multas', [TipoMultaController::class, 'listTipoMulta']);
 Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
 Route::get('/carnet/expedir/{dni}',[CarnetController::class, 'expedirCarnet']);
@@ -52,6 +54,14 @@ Route::post('/licencia', [LicenciaController::class, 'register']);
 Route::get('/licencia/{dni}', [LicenciaController::class, 'obtnerlicencia']);
 Route::get('/licencia/expedir/{id}', [LicenciaController::class, 'expedirLicencia']);
 Route::get('/licencia/dashboard/conteo', [LicenciaController::class, 'contarLicenciasPorMeses']);
-
 Route::post('/constancia/expedir', [ConstanciaController::class, 'expedirConstancia']);  
+
+Route::get('/actualizar-carnets', function (App\Jobs\ActualizarEstadoCarnetsCaducado $job) {
+    $job->dispatch();
+    return response()->json(['success'=>true,'message' => 'Job despachado correctamente']);
+});
+Route::get('/actualizar-constancia', function (App\Jobs\ActualizarEstadoConstanciaCaducado $job) {
+    $job->dispatch();
+    return response()->json(['success'=>true,'message' => 'Job despachado correctamente']);
+});
 });

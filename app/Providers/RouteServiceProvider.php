@@ -7,6 +7,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use App\Jobs\ActualizarEstadoCarnetsCaducado;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -35,6 +36,14 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
+
+            // **Place the Job registration code here:**
+            Route::bind('actualizar-estado-carnets', function () {
+                return new \App\Jobs\ActualizarEstadoCarnetsCaducado;
+            });
+            Route::bind('actualizar-estado-constancia', function () {
+                return new \App\Jobs\ActualizarEstadoConstanciaCaducado;
+            });
         });
     }
 }

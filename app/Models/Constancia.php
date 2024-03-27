@@ -16,4 +16,6 @@ class Constancia extends Model
         'idpropietario' 
     ];
 
+    protected $dates = ['fechaCaducidad'];
+
 }

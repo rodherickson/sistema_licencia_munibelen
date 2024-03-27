@@ -161,43 +161,45 @@ class CarnetController extends Controller
 
 
     public function expedirCarnet(Request $request, $dni)
-    {
-        try {
-            if (!is_numeric($dni) || strlen($dni) !== 8) {
-                return response()->json(['error' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
-            }
-
-            $carnet = DB::table('carnet as c')
-                ->select('c.id', 'p.dni')
-                // ->join('carnet_files as cf', 'c.id', '=', 'cf.id_carnet_files')
-                ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
-                // ->join('rubro as r','r.id','=','c.idrubro')
-                ->where('p.dni', $dni)
-                ->first(); // Obtener el primer carnet que coincida con el DNI
-
-            if (!$carnet) {
-                return response()->json(['success' => false, 'message' => 'No se encontró ningún carnet con el DNI especificado.'], 404);
-            }
-
-            // Insertar el idcarnet en la tabla carnetexpedidos
-            DB::table('carnetexpedidos')->insert([
-                'idcarnet' => $carnet->id,
-                'fecha' => DB::raw('NOW()')
-            ]);
-
-            // Actualizar el estado del carnet a "Expedido"
-            DB::table('carnet')->where('id', $carnet->id)->update(['estado' => 'Expedido']);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Carnet expedido'
-            ]);
-        } catch (\Exception $e) {
-            // Manejo de la excepción
-            return response()->json(['success' => false, 'message' => 'Se produjo un error al obtener el carnet. '], 500);
+{
+    try {
+        if (!is_numeric($dni) || strlen($dni) !== 8) {
+            return response()->json(['error' => 'El DNI debe tener exactamente 8 dígitos y ser numérico.'], 400);
         }
-    }
 
+        $carnet = DB::table('carnet as c')
+            ->select('c.id', 'p.dni', 'c.estado')
+            ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
+            ->where('p.dni', $dni)
+            ->first();
+
+        if (!$carnet) {
+            return response()->json(['success' => false, 'message' => 'No se encontró ningún carnet con el DNI especificado.'], 404);
+        }
+
+        // Verificar si el carnet ya ha sido expedido
+        if ($carnet->estado === 'Expedido') {
+            return response()->json(['success' => false, 'message' => 'El carnet correspondiente al DNI especificado ya ha sido expedido.'], 400);
+        }
+
+        // Insertar el idcarnet en la tabla carnetexpedidos
+        DB::table('carnetexpedidos')->insert([
+            'idcarnet' => $carnet->id,
+            'fecha' => DB::raw('NOW()')
+        ]);
+
+        // Actualizar el estado del carnet a "Expedido"
+        DB::table('carnet')->where('id', $carnet->id)->update(['estado' => 'Expedido']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Carnet expedido'
+        ]);
+    } catch (\Exception $e) {
+        // Manejo de la excepción
+        return response()->json(['success' => false, 'message' => 'Se produjo un error al obtener el carnet. '], 500);
+    }
+}
 
     public function obtenerReportePadronVendedores(Request $request)
     {

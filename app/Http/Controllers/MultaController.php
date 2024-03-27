@@ -240,9 +240,10 @@ class MultaController extends Controller
                 }
             }
 
+           
             // Actualiza otros campos de la multa si es necesario
             $detalleMulta->update([
-                'status' => $request->status
+                'status' => $request->condicion
             ]);
 
 
@@ -260,6 +261,29 @@ class MultaController extends Controller
             ], 500);
         }
     }
+
+
+    public function datosMulta($idmulta)
+    {
+        // Ejecutar la consulta SQL
+        $datosMulta = DB::select("
+            SELECT mu.id, dm.status as estado, GROUP_CONCAT(fm.path_file) AS path_files
+            FROM multa mu 
+            INNER JOIN detalle_multa dm ON dm.idmulta = mu.id 
+            INNER JOIN files_multas fm ON fm.id_multade_files = dm.id 
+            WHERE mu.id = :id
+            GROUP BY mu.id, dm.status;
+        ", ['id' => $idmulta]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Datos obtenidos correctamente',
+            'datosMulta' => $datosMulta
+        ], 200);
+    }
+
+
+
 
     public function listarMultasEnProceso(Request $request){
         try {
