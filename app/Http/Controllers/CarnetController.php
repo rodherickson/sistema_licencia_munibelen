@@ -363,20 +363,123 @@ class CarnetController extends Controller
     
 
 
-    public function actualizarEstadoCarnets()
+    // public function actualizarEstadoCarnets()
+    // {
+
+    //     $carnets = CarnetModel::all();
+
+
+    //     $fechaActual = Carbon::now();
+
+    //     // Iterar sobre cada carnet y verificar si está caducado
+    //     foreach ($carnets as $carnet) {
+    //         if ($carnet->fechaCaducidad < $fechaActual) {
+    //             $carnet->estado = 'caducado';
+    //             $carnet->save();
+    //         }
+    //     }
+    // }
+
+      
+    public function listcarnetCaducados(Request $request)
     {
+        try {
+            $request->validate([
+                'numberItems' => 'required|numeric',
+                'page' => 'required|numeric'
+            ]);
 
-        $carnets = CarnetModel::all();
+            $carnet = DB::table('carnet as c')
+                ->select('c.id', 'p.nombre', 'p.apellidos', 'p.dni', 'r.nombre_rubro as rubro', 'c.fechaEmision', 'c.fechaCaducidad','c.estado')
+                ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
+                ->join('rubro as r', 'r.id', '=', 'c.idrubro')
+                ->where('c.estado', 'Caducado')
+                ->orderBy('c.fechaCaducidad', 'ASC')
+                ->paginate($request->numberItems, ['*'], 'page', $request->page);
 
-
-        $fechaActual = Carbon::now();
-
-        // Iterar sobre cada carnet y verificar si está caducado
-        foreach ($carnets as $carnet) {
-            if ($carnet->fechaCaducidad < $fechaActual) {
-                $carnet->estado = 'caducado';
-                $carnet->save();
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Carnets caducados obtenidos con éxito',
+                'carnet' => $carnet->items(),
+                'currentPage' => $carnet->currentPage(),
+                'totalPages' => $carnet->lastPage(),
+                'perPage' => $carnet->perPage(),
+                'total' => $carnet->total(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los carnets: ' . $e->getMessage()
+            ], 500);
         }
     }
+
+
+
+    public function updateCarnet(Request $request, $idCarnet)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Encuentra el carnet que se va a actualizar
+            $carnet = CarnetModel::findOrFail($idCarnet);
+
+            // Actualiza la fecha de emisión si se proporciona en la solicitud
+            if ($request->has('fechaEmision')) {
+                $fechaEmision = Carbon::createFromFormat('Y-m-d', $request->fechaEmision);
+                $carnet->fechaEmision = $fechaEmision->format('Y-m-d');
+            }
+
+            // Calcula la fecha de caducidad basada en la fecha de emisión
+            if ($request->has('fechaEmision')) {
+                $fechaEmision = Carbon::createFromFormat('Y-m-d', $request->fechaEmision);
+                $fechaCaducidad = $fechaEmision->copy()->addMonths(6);
+                $carnet->fechaCaducidad = $fechaCaducidad->format('Y-m-d');
+            }
+
+            // Actualiza el estado si se proporciona en la solicitud
+            if ($request->has('estado')) {
+                $carnet->estado = $request->estado;
+            }
+
+            // Guarda el carnet actualizado
+            $carnet->save();
+
+            // Verifica si se adjuntaron archivos
+            if ($request->hasFile('anexosAdjuntos') && count($request->file('anexosAdjuntos')) > 0) {
+                foreach ($request->file('anexosAdjuntos') as $file) {
+                    $filename = $file->getClientOriginalName();
+                    $extension = $file->getClientOriginalExtension();
+                    $uniqueName = date('YmdHis') . rand(10, 99);
+
+                    $path = $file->storeAs(
+                        'carnet/' . date('Y/m'),
+                        $uniqueName . '.' . $extension,
+                        'public'
+                    );
+
+                    // Guarda los detalles del archivo adjunto junto con el ID del carnet
+                    Carnet_files::saveFiles($carnet->id, $filename, $uniqueName, $extension, $path, $request->user()->id);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Carnet actualizado correctamente.',
+            ], 200);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+
+
 }

@@ -35,13 +35,13 @@ class Propietario extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre' => 'required|string|min:2|max:255',
-            'apellidos' => 'required|string|min:2|max:255',
+            'nombre' => 'required|string|max:80',
+            'apellidos' => 'required|string|max:80',
             'dni'=> 'required|string|max:8',
-            'celular' => 'required|string|min:2|max:255',
-            'correo' => 'required|email|min:2|max:255',
-            'direccion' => 'required|string|min:2|max:255',
-            'distrito' => 'required|string|min:2|max:255',
+            'celular' => 'required|string|min:9|max:15',
+            'correo' => 'required|email|max:255',
+            'direccion' => 'required|string|max:50',
+            'distrito' => 'required|string|max:20',
             'fotoVendedor.*' => [
                 'required',
                 'mimes:jpg,jpeg,png,gif',
@@ -56,18 +56,23 @@ class Propietario extends FormRequest
         return[
             'nombre.required' => 'Debe ingresar un nombre :(',
             'nombre.string' => 'Formato de nombre Incorrecto :(',
-            'nombre.min' => 'El nombre es demasiado corto :(',
+            // 'nombre.min' => 'El nombre es demasiado corto :(',
             'nombre.max' => 'El nombre es demasiado Largo :(',
             'apellidos.required' => 'Debe ingresar su apellido :(',
             'apellidos.string' => 'Su apellido debe tener un formato correcto',
+            'apellidos.max' => 'Su apellido es demasiado largo',
             'dni.required' => 'Por favor ingrese su DNI',
             'dni.max' => 'su DNI debe tener 8 digitos',
             'correo.required' => 'Por favor ingrese su correo electrónico',
             'celular.required' => 'Por favor ingrese su celular',
+            'celular.min' => ' El teléfono debe tener al menos 9 caracteres numéricos',
+            'celular.max' => ' El teléfono debe tener como maximo 15 caracteres numéricos',
             'correo.email' =>  'El correo electrónico no tiene un formato valido',
             'correo.max' => 'El correo electrónico no tiene un formato valido',
             'direccion.required' => 'Por favor ingrese direccion',
+            'direccion.max'=>'La dirección no puede tener más de 50 caracteres',
             'distrito.required' => 'Por favor ingrese el distrito',
+            'distrito.max'=>'El distrito no puede tener más de 20 caracteres',
         ];
     }
 

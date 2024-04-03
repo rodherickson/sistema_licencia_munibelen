@@ -45,7 +45,9 @@ Route::get('/multas', [TipoMultaController::class, 'listTipoMulta']);
 Route::get('/carnet/{dni}',[CarnetController::class, 'obtenercarnet']);
 Route::get('/carnet/expedir/{dni}',[CarnetController::class, 'expedirCarnet']);
 Route::get('/carnet', [CarnetController::class, 'listcarnet']);
+Route::get('/carnet/listar/caducados', [CarnetController::class, 'listcarnetCaducados']);
 Route::post('/carnet', [CarnetController::class, 'register']);
+Route::post('/carnet/editar/{idCarnet}', [CarnetController::class, 'updateCarnet']);
 Route::get('/carnet/dashboard/conteo', [CarnetController::class, 'contarCarnetsPorMeses']);
 Route::get('/carnet/dashboard/estados', [CarnetController::class, 'contarCarnetsPorEstado']);
 Route::post('/carnet/padron/vendedores', [CarnetController::class, 'obtenerReportePadronVendedores']);
@@ -54,7 +56,9 @@ Route::post('/licencia', [LicenciaController::class, 'register']);
 Route::get('/licencia/{dni}', [LicenciaController::class, 'obtnerlicencia']);
 Route::get('/licencia/expedir/{id}', [LicenciaController::class, 'expedirLicencia']);
 Route::get('/licencia/dashboard/conteo', [LicenciaController::class, 'contarLicenciasPorMeses']);
-Route::post('/constancia/expedir', [ConstanciaController::class, 'expedirConstancia']);  
+Route::post('/constancia/expedir', [ConstanciaController::class, 'expedirConstancia']); 
+Route::get('/constancia/listar/caducados', [ConstanciaController::class, 'listconstanciaCaducados']);
+Route::post('/constancia/editar/{idConstancia}', [ConstanciaController::class, 'updateConstancia']);      
 
 Route::get('/actualizar-carnets', function (App\Jobs\ActualizarEstadoCarnetsCaducado $job) {
     $job->dispatch();
