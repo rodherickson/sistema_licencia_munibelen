@@ -136,7 +136,7 @@ class CarnetController extends Controller
             ]);
 
             $carnet = DB::table('carnet as c')
-                ->select('c.id', 'p.nombre', 'p.apellidos', 'p.dni', 'r.nombre_rubro as rubro', 'c.fechaEmision', 'c.fechaCaducidad')
+                ->select('c.id', 'p.nombre', 'p.apellidos', 'p.dni', 'r.nombre_rubro as rubro', 'c.fechaEmision', 'c.fechaCaducidad','c.estado')
                 ->join('propietario as p', 'p.id', '=', 'c.idpropietario')
                 ->join('rubro as r', 'r.id', '=', 'c.idrubro')
                 ->orderBy('c.fechaCaducidad', 'ASC')
